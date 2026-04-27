@@ -1,18 +1,29 @@
-import { Button } from "@/components/ui/button"
+import Navbar from "@/components/portfolio/Navbar"
+import Hero from "@/components/portfolio/Hero"
+import TechStack from "@/components/portfolio/TechStack"
+import Projects from "@/components/portfolio/Projects"
+import Experience from "@/components/portfolio/Experience"
 
 function App() {
   return (
-    <main className="flex min-h-svh items-center justify-center bg-background px-6 text-foreground">
-      <div className="flex flex-col items-center gap-4 text-center">
-        <p className="text-sm font-medium text-muted-foreground">
-          Vite + React + Tailwind CSS + shadcn/ui
-        </p>
-        <h1 className="text-3xl font-semibold tracking-normal">
-          Ready to build
-        </h1>
-        <Button>Get started</Button>
-      </div>
-    </main>
+    <div className="dark min-h-svh bg-background text-foreground selection:bg-primary/30">
+      <Navbar />
+      <main className="flex flex-col">
+        <Hero />
+        <div className="bg-secondary/30">
+          <TechStack />
+        </div>
+        <Projects />
+        <div className="bg-secondary/30">
+          <Experience />
+        </div>
+      </main>
+      <footer className="border-t border-border/40 py-12 bg-background">
+        <div className="container max-w-screen-2xl px-4 md:px-8 text-center text-sm text-muted-foreground">
+          <p>© {new Date().getFullYear()} All-rounder Developer. Built with React & Tailwind CSS.</p>
+        </div>
+      </footer>
+    </div>
   )
 }
 

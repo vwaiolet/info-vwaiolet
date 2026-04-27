@@ -10,10 +10,12 @@
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
+    "@radix-ui/react-separator": "^1.1.8",
     "@radix-ui/react-slot": "latest",
+    "@radix-ui/react-tabs": "^1.1.13",
     "class-variance-authority": "latest",
     "clsx": "latest",
-    "lucide-react": "latest",
+    "lucide-react": "^1.11.0",
     "react": "latest",
     "react-dom": "latest",
     "shadcn": "latest",
