@@ -24,26 +24,26 @@ const experiences = [
 
 export default function Experience() {
   return (
-    <section id="experience" className="container mx-auto py-24 max-w-6xl px-4 md:px-8 mb-24">
+    <section id="experience" className="container py-24 max-w-5xl px-4 md:px-8 mb-24">
       <div className="mb-12">
         <h2 className="text-3xl font-bold tracking-tight mb-4">Experience</h2>
         <p className="text-muted-foreground text-lg">지금까지 걸어온 여정입니다.</p>
       </div>
-      <div className="max-w-4xl">
+      <div className="space-y-8">
         {experiences.map((exp, idx) => (
-          <div key={idx} className="relative pl-8 border-l border-border/50 pb-12 last:pb-0">
+          <div key={idx} className="relative pl-8 border-l border-border/50 pb-8 last:pb-0">
             <div className="absolute left-[-5px] top-0 w-[10px] h-[10px] rounded-full bg-primary" />
             <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-2">
               <div>
                 <h3 className="text-xl font-bold">{exp.role}</h3>
                 <p className="text-primary font-medium">{exp.company}</p>
               </div>
-              <span className="text-sm text-muted-foreground bg-muted/50 px-3 py-1 rounded-full mt-2 md:mt-0 font-medium">
+              <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded mt-2 md:mt-0">
                 {exp.period}
               </span>
             </div>
-            <p className="text-muted-foreground mb-4 leading-relaxed">{exp.description}</p>
-            <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground/80">
+            <p className="text-muted-foreground mb-4">{exp.description}</p>
+            <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground/80">
               {exp.achievements.map((item, i) => (
                 <li key={i}>{item}</li>
               ))}

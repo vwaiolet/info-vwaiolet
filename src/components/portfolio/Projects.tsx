@@ -29,22 +29,20 @@ const projects = [
 
 export default function Projects() {
   return (
-    <section id="projects" className="container mx-auto py-24 max-w-6xl px-4 md:px-8">
+    <section id="projects" className="container py-24 max-w-5xl px-4 md:px-8">
       <div className="mb-12">
         <h2 className="text-3xl font-bold tracking-tight mb-4">Selected Projects</h2>
         <p className="text-muted-foreground text-lg">최근에 진행한 주요 프로젝트들입니다.</p>
       </div>
-      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {projects.map((project) => (
-          <Card key={project.title} className="flex flex-col bg-card/50 border-border/50 overflow-hidden transition-all hover:border-primary/50 group">
-            <div className="aspect-video bg-muted flex items-center justify-center overflow-hidden">
-               <div className="w-full h-full bg-secondary/20 flex items-center justify-center text-muted-foreground transition-transform duration-500 group-hover:scale-110">
-                 Project Preview
-               </div>
+          <Card key={project.title} className="flex flex-col bg-card/50 border-border/50 overflow-hidden transition-all hover:border-primary/50">
+            <div className="aspect-video bg-muted flex items-center justify-center">
+              <span className="text-muted-foreground">Project Preview</span>
             </div>
             <CardHeader>
               <CardTitle>{project.title}</CardTitle>
-              <CardDescription className="line-clamp-2 h-10">{project.description}</CardDescription>
+              <CardDescription className="line-clamp-2">{project.description}</CardDescription>
             </CardHeader>
             <CardContent className="mt-auto">
               <div className="flex flex-wrap gap-2">
@@ -55,7 +53,7 @@ export default function Projects() {
                 ))}
               </div>
             </CardContent>
-            <CardFooter className="gap-2 pt-4">
+            <CardFooter className="gap-2">
               <Button variant="outline" size="sm" className="w-full gap-2">
                 <GitGraph className="w-4 h-4" /> Code
               </Button>
