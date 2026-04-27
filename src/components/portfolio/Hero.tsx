@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge"
 
 export default function Hero() {
   return (
-    <section id="home" className="container flex flex-col items-start gap-4 py-24 md:py-32 max-w-5xl px-4 md:px-8">
+    <section id="home" className="container mx-auto flex flex-col items-start gap-4 py-24 md:py-32 max-w-6xl px-4 md:px-8">
       <Badge variant="secondary" className="px-3 py-1 text-xs font-semibold uppercase tracking-wider">
         Full Stack Developer
       </Badge>

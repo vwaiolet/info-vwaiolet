@@ -29,7 +29,7 @@ const projects = [
 
 export default function Projects() {
   return (
-    <section id="projects" className="container py-24 max-w-5xl px-4 md:px-8">
+    <section id="projects" className="container mx-auto py-24 max-w-6xl px-4 md:px-8">
       <div className="mb-12">
         <h2 className="text-3xl font-bold tracking-tight mb-4">Selected Projects</h2>
         <p className="text-muted-foreground text-lg">최근에 진행한 주요 프로젝트들입니다.</p>
