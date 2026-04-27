@@ -18,7 +18,7 @@ const techData = [
 
 export default function TechStack() {
   return (
-    <section id="tech-stack" className="container py-24 max-w-5xl px-4 md:px-8">
+    <section id="tech-stack" className="container mx-auto py-24 max-w-6xl px-4 md:px-8">
       <div className="mb-12">
         <h2 className="text-3xl font-bold tracking-tight mb-4">Technical Stack</h2>
         <p className="text-muted-foreground text-lg">사용하고 있는 주요 기술들입니다.</p>
