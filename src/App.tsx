@@ -6,23 +6,32 @@ import Experience from "@/components/portfolio/Experience"
 
 function App() {
   return (
-    <div className="dark min-h-svh bg-background text-foreground selection:bg-primary/30">
-      <Navbar />
-      <main className="flex flex-col">
-        <Hero />
-        <div className="bg-secondary/30">
+    <div className="dark bg-background text-foreground selection:bg-primary/30 h-screen overflow-hidden">
+      <main className="snap-container">
+        <section className="snap-section relative">
+          <Navbar />
+          <Hero />
+        </section>
+
+        <section className="snap-section bg-secondary/30">
           <TechStack />
-        </div>
-        <Projects />
-        <div className="bg-secondary/30">
-          <Experience />
-        </div>
+        </section>
+
+        <section className="snap-section">
+          <Projects />
+        </section>
+
+        <section className="snap-section bg-secondary/30 relative flex flex-col">
+          <div className="flex-grow flex flex-col justify-center">
+            <Experience />
+          </div>
+          <footer className="border-t border-border/40 py-8 bg-background/50">
+            <div className="container mx-auto max-w-6xl px-4 md:px-8 text-center text-sm text-muted-foreground">
+              <p>© {new Date().getFullYear()} All-rounder Developer. Built with React & Tailwind CSS.</p>
+            </div>
+          </footer>
+        </section>
       </main>
-      <footer className="border-t border-border/40 py-12 bg-background">
-        <div className="container mx-auto max-w-6xl px-4 md:px-8 text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} All-rounder Developer. Built with React & Tailwind CSS.</p>
-        </div>
-      </footer>
     </div>
   )
 }
