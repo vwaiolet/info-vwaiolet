@@ -1,3 +1,5 @@
+import { motion } from "framer-motion"
+
 const experiences = [
   {
     company: "테크 스타트업 (Tech Startup)",
@@ -24,33 +26,49 @@ const experiences = [
 
 export default function Experience() {
   return (
-    <section id="experience" className="container mx-auto py-24 max-w-6xl px-4 md:px-8 mb-24">
-      <div className="mb-12">
-        <h2 className="text-3xl font-bold tracking-tight mb-4">Experience</h2>
-        <p className="text-muted-foreground text-lg">지금까지 걸어온 여정입니다.</p>
-      </div>
-      <div className="space-y-8">
+    <div id="experience" className="container mx-auto max-w-6xl px-4 md:px-8 h-full flex flex-col justify-center py-12">
+      <motion.div
+        className="mb-12"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: false }}
+        transition={{ duration: 0.8 }}
+      >
+        <h2 className="text-4xl font-bold tracking-tight mb-4 md:text-5xl">Experience</h2>
+        <p className="text-muted-foreground text-xl">지금까지 걸어온 여정입니다.</p>
+      </motion.div>
+      <div className="space-y-12">
         {experiences.map((exp, idx) => (
-          <div key={idx} className="relative pl-8 border-l border-border/50 pb-8 last:pb-0">
-            <div className="absolute left-[-5px] top-0 w-[10px] h-[10px] rounded-full bg-primary" />
-            <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-2">
+          <motion.div
+            key={idx}
+            className="relative pl-10 border-l-2 border-primary/20 pb-4 last:pb-0"
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: false }}
+            transition={{ duration: 0.6, delay: idx * 0.2 }}
+          >
+            <div className="absolute left-[-9px] top-0 w-[16px] h-[16px] rounded-full bg-primary border-4 border-background" />
+            <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-4">
               <div>
-                <h3 className="text-xl font-bold">{exp.role}</h3>
-                <p className="text-primary font-medium">{exp.company}</p>
+                <h3 className="text-2xl font-bold">{exp.role}</h3>
+                <p className="text-primary text-lg font-medium">{exp.company}</p>
               </div>
-              <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded mt-2 md:mt-0">
+              <span className="text-sm font-semibold text-muted-foreground bg-secondary px-3 py-1 rounded-full mt-2 md:mt-0">
                 {exp.period}
               </span>
             </div>
-            <p className="text-muted-foreground mb-4">{exp.description}</p>
-            <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground/80">
+            <p className="text-lg text-muted-foreground mb-6 leading-relaxed">{exp.description}</p>
+            <ul className="grid gap-3 text-base text-muted-foreground/80">
               {exp.achievements.map((item, i) => (
-                <li key={i}>{item}</li>
+                <li key={i} className="flex items-start gap-2">
+                  <span className="text-primary mt-1.5">•</span>
+                  <span>{item}</span>
+                </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
         ))}
       </div>
-    </section>
+    </div>
   )
 }
