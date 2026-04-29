@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button"
 
+const contactHref = "mailto:kkh990828@gmail.com?subject=Portfolio%20Contact"
+
 export default function Navbar() {
   return (
     <nav className="absolute top-0 left-0 z-50 w-full border-b border-border/40 bg-transparent">
@@ -14,8 +16,8 @@ export default function Navbar() {
           <a href="#experience" className="transition-colors hover:text-primary">Experience</a>
         </div>
         <div>
-          <Button variant="outline" size="sm" className="hidden md:flex">
-            Contact Me
+          <Button asChild variant="outline" size="sm" className="hidden md:flex">
+            <a href={contactHref}>Contact Me</a>
           </Button>
         </div>
       </div>
