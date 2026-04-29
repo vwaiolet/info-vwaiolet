@@ -1,17 +1,18 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { ArrowDown, Download } from "lucide-react"
 import { motion } from "framer-motion"
 
 export default function Hero() {
   return (
-    <div id="home" className="container mx-auto flex flex-col items-center justify-center gap-6 py-24 md:py-32 max-w-6xl px-4 md:px-8 text-center h-full">
+    <div id="home" className="container mx-auto flex flex-col items-center justify-center gap-6 py-24 md:py-32 max-w-6xl px-4 md:px-8 text-center">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
         <Badge variant="secondary" className="px-3 py-1 text-xs font-semibold uppercase tracking-wider mb-4">
-          Full Stack Developer
+          AI BACKEND & SERVING ENGINEER
         </Badge>
       </motion.div>
 
@@ -22,7 +23,7 @@ export default function Hero() {
         transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
       >
         안녕하세요, <br />
-        <span className="text-primary">올라운더 개발자</span>입니다.
+        <span className="text-primary">모델의 가치를 서비스로 연결하는 엔지니어</span>입니다.
       </motion.h1>
 
       <motion.p
@@ -31,7 +32,7 @@ export default function Hero() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 0.5 }}
       >
-        프론트엔드부터 백엔드까지, 사용자 경험을 최우선으로 생각하며 탄탄한 비즈니스 로직을 설계합니다.
+        단순히 "돌아가는 기능"을 넘어 "왜 이 아키텍처여야 하는가?"를 끊임없이 고민합니다. 클라우드부터 K3s 기반 엣지 디바이스까지, 비즈니스 효율성을 고려한 최적의 AI 서빙 환경을 구축합니다.
       </motion.p>
 
       <motion.div
@@ -40,8 +41,16 @@ export default function Hero() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.8 }}
       >
-        <Button size="lg" className="px-8 text-lg h-14">내 프로젝트 보기</Button>
-        <Button size="lg" variant="outline" className="px-8 text-lg h-14">Resume 다운로드</Button>
+        <Button asChild size="lg" className="px-8 text-lg h-14">
+          <a href="#projects">
+            내 프로젝트 보기
+            <ArrowDown className="w-5 h-5" />
+          </a>
+        </Button>
+        <Button size="lg" variant="outline" className="px-8 text-lg h-14" disabled>
+          이력서 준비 중
+          <Download className="w-5 h-5" />
+        </Button>
       </motion.div>
 
       <motion.div

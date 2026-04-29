@@ -2,31 +2,32 @@ import { motion } from "framer-motion"
 
 const experiences = [
   {
-    company: "테크 스타트업 (Tech Startup)",
-    role: "Senior Full Stack Developer",
-    period: "2022 - Present",
-    description: "고성능 마이크로서비스 아키텍처 설계 및 프론트엔드 성능 최적화 주도.",
+    company: "주식회사 이더블에스",
+    role: "Edge AI Engineer",
+    period: "2025.09 - Present",
+    description: "K3s 기반 엣지 디바이스 내 SLM 온디바이스 서빙 파이프라인을 구축하고, VSS 데이터 아키텍처를 분석했습니다.",
     achievements: [
-      "메인 서비스 응답 속도 40% 개선",
-      "CI/CD 파이프라인 자동화로 배포 시간 60% 단축",
-      "주니어 개발자 멘토링 및 코드 리뷰 문화 정착"
+      "K3s Resource Quota 및 LimitRange를 엄격하게 설정하여 Control Plane과 Worker Node 간 리소스 경합 문제 해결",
+      "LLM(Ollama)의 효율적인 스케줄링 및 배포 실패(CrashLoopBackOff) 트러블슈팅으로 안정적인 서빙 환경 구축",
+      "AWS IoT FleetWise 도입 타당성 검토(PoC)를 수행하여, 사내 자체 VSS 데이터 파싱 파이프라인 구축의 핵심 레퍼런스 제공"
     ]
   },
   {
-    company: "소프트웨어 솔루션즈 (SW Solutions)",
-    role: "Web Developer",
-    period: "2020 - 2022",
-    description: "다양한 B2B SaaS 제품의 웹 대시보드 개발 및 유지보수.",
+    company: "주식회사 디엑스아이소프트",
+    role: "AI Backend Developer",
+    period: "2023.10 - 2025.06",
+    description: "BERT/LLM 기반 개인화 교육 솔루션의 AI 모델 선정부터 고성능 백엔드 연동 및 최적화를 주도했습니다.",
     achievements: [
-      "실시간 데이터 시각화 모듈 개발",
-      "전사적 컴포넌트 라이브러리 구축으로 개발 효율 30% 향상"
+      "트래픽 부하가 높은 AI 모델 연동 구간에 비동기 아키텍처를 도입하여 서비스 응답 속도 대폭 개선",
+      "Google Vertex AI 및 Cloud Storage를 긴밀하게 연동하여 대용량 PDF/오디오 처리 파이프라인 설계",
+      "응답 최적화를 위해 경량화된 BERT 모델을 선정하고, 고성능 LLM을 활용한 데이터 증강 전략으로 파인튜닝 수행"
     ]
   }
 ]
 
 export default function Experience() {
   return (
-    <div id="experience" className="container mx-auto max-w-6xl px-4 md:px-8 h-full flex flex-col justify-center py-12">
+    <div id="experience" className="container mx-auto max-w-6xl px-4 md:px-8 flex flex-col justify-center py-12">
       <motion.div
         className="mb-12"
         initial={{ opacity: 0 }}
@@ -35,7 +36,7 @@ export default function Experience() {
         transition={{ duration: 0.8 }}
       >
         <h2 className="text-4xl font-bold tracking-tight mb-4 md:text-5xl">Experience</h2>
-        <p className="text-muted-foreground text-xl">지금까지 걸어온 여정입니다.</p>
+        <p className="text-muted-foreground text-xl">현업에서 AI 모델을 서비스로 연결하며 시스템을 최적화한 경험입니다.</p>
       </motion.div>
       <div className="space-y-12">
         {experiences.map((exp, idx) => (

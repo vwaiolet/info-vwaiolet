@@ -27,7 +27,7 @@ function App() {
           </div>
           <footer className="border-t border-border/40 py-8 bg-background/50">
             <div className="container mx-auto max-w-6xl px-4 md:px-8 text-center text-sm text-muted-foreground">
-              <p>© {new Date().getFullYear()} All-rounder Developer. Built with React & Tailwind CSS.</p>
+              <p>© {new Date().getFullYear()} Gyeongho Kim. AI Backend & Serving Engineer.</p>
             </div>
           </footer>
         </section>
