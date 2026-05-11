@@ -10,7 +10,6 @@ const projects = [
     description: "K3s 환경의 엣지 디바이스에서 시계열 모델(USAD)과 경량화 LLM(SLM)을 결합하여 오탐률을 획기적으로 줄인 온디바이스 AI 서빙 파이프라인입니다. CAN 데이터를 VSS 포맷으로 실시간 매핑하는 모듈을 개발했습니다.",
     tags: ["K3s", "Ollama", "Docker", "TensorRT", "USAD", "CAN", "VSS"],
     visualLabel: "Edge AI Serving",
-    visualSteps: ["CAN", "VSS", "SLM"],
     icon: Cpu
   },
   {
@@ -18,7 +17,6 @@ const projects = [
     description: "무거운 생성형 모델(LLM/BERT) 응답 대기 시간 동안 서버가 블로킹되지 않도록 FastAPI 비동기 아키텍처를 도입했습니다. Vertex AI와 GCS를 연동하여 대용량 파일 처리 파이프라인을 최적화했습니다.",
     tags: ["FastAPI", "Vertex AI", "GCP", "BERT"],
     visualLabel: "Async AI Backend",
-    visualSteps: ["FastAPI", "GCS", "Vertex AI"],
     icon: Server
   },
   {
@@ -26,7 +24,6 @@ const projects = [
     description: "Django ORM을 활용해 복잡한 학습 데이터의 무결성을 보장하는 스키마를 설계했습니다. Gemini 모델의 긴 컨텍스트 윈도우를 활용하여 강의 전체 맥락을 유지하는 Grounding 로직을 구현했습니다.",
     tags: ["Django", "Gemini API", "PostgreSQL", "Grounding"],
     visualLabel: "Context Grounding",
-    visualSteps: ["Django", "PostgreSQL", "Gemini"],
     icon: Database
   }
 ]
@@ -74,13 +71,6 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
               </div>
               <span className="text-sm font-semibold text-muted-foreground">{project.visualLabel}</span>
             </div>
-          </div>
-          <div className="mt-5 grid grid-cols-3 gap-2">
-            {project.visualSteps.map((step) => (
-              <span key={step} className="rounded-md border border-border/60 bg-background/50 px-2 py-2 text-center text-xs font-medium text-muted-foreground">
-                {step}
-              </span>
-            ))}
           </div>
         </div>
         <CardHeader>

@@ -6,22 +6,22 @@ import Experience from "@/components/portfolio/Experience"
 
 function App() {
   return (
-    <div className="dark bg-background text-foreground selection:bg-primary/30 h-screen overflow-hidden">
-      <main className="snap-container">
-        <section className="snap-section relative">
+    <div className="dark bg-background text-foreground selection:bg-primary/30 min-h-screen">
+      <main>
+        <section className="section-container relative">
           <Navbar />
           <Hero />
         </section>
 
-        <section className="snap-section bg-secondary/30">
+        <section className="section-container bg-secondary/30">
           <TechStack />
         </section>
 
-        <section className="snap-section">
+        <section className="section-container">
           <Projects />
         </section>
 
-        <section className="snap-section bg-secondary/30 relative flex flex-col">
+        <section className="section-container bg-secondary/30 relative flex flex-col">
           <div className="flex-grow flex flex-col justify-center">
             <Experience />
           </div>

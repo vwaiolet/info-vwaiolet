@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowDown, Download } from "lucide-react"
+import { ArrowDown, Eye } from "lucide-react"
+import { ResumeModal } from "./ResumeModal"
 import { motion } from "framer-motion"
 
 export default function Hero() {
@@ -47,20 +48,12 @@ export default function Hero() {
             <ArrowDown className="w-5 h-5" />
           </a>
         </Button>
-        <Button size="lg" variant="outline" className="px-8 text-lg h-14" disabled>
-          이력서 준비 중
-          <Download className="w-5 h-5" />
-        </Button>
-      </motion.div>
-
-      <motion.div
-        className="absolute bottom-10 left-1/2 -translate-x-1/2"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      >
-        <div className="w-6 h-10 border-2 border-muted-foreground rounded-full flex justify-center p-1">
-          <div className="w-1 h-2 bg-muted-foreground rounded-full" />
-        </div>
+        <ResumeModal>
+          <Button size="lg" variant="outline" className="px-8 text-lg h-14">
+            이력서 열람
+            <Eye className="w-5 h-5" />
+          </Button>
+        </ResumeModal>
       </motion.div>
     </div>
   )

@@ -12,12 +12,16 @@ const techData = [
     skills: ["Python", "FastAPI", "Django", "PostgreSQL", "MySQL", "Redis"]
   },
   {
+    category: "Frontend & Web",
+    skills: ["React", "Next.js", "React Router", "TypeScript", "Tailwind CSS", "HTML", "CSS", "JavaScript"]
+  },
+  {
     category: "Cloud & Edge Infra",
     skills: ["AWS", "GCP", "Azure", "K3s", "Docker", "Docker Compose"]
   },
   {
     category: "Tools & Others",
-    skills: ["Git", "GitHub Actions", "Codex", "Notion", "Google Workspace", "React", "Next.js"]
+    skills: ["Git", "GitHub Actions", "Codex", "Notion", "Google Workspace"]
   }
 ]
 
