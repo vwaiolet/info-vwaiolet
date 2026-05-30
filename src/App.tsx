@@ -6,28 +6,43 @@ import Experience from "@/components/portfolio/Experience"
 
 function App() {
   return (
-    <div className="dark bg-background text-foreground selection:bg-primary/30 min-h-screen">
+    <div className="dark bg-background text-foreground selection:bg-primary/30 min-h-screen bg-grid-pattern relative">
+      {/* Floating global gradient glow in background */}
+      <div className="absolute top-[20%] left-[10%] w-[35rem] h-[35rem] bg-violet-500/5 rounded-full blur-[120px] -z-10 pointer-events-none" />
+      <div className="absolute top-[50%] right-[5%] w-[40rem] h-[40rem] bg-fuchsia-500/5 rounded-full blur-[130px] -z-10 pointer-events-none" />
+      <div className="absolute top-[80%] left-[20%] w-[30rem] h-[30rem] bg-indigo-500/5 rounded-full blur-[110px] -z-10 pointer-events-none" />
+
+      <Navbar />
+
       <main>
-        <section className="section-container relative">
-          <Navbar />
+        <section className="section-container">
           <Hero />
         </section>
 
-        <section className="section-container bg-secondary/30">
+        <section className="section-container border-t border-primary/5">
           <TechStack />
         </section>
 
-        <section className="section-container">
+        <section className="section-container border-t border-primary/5">
           <Projects />
         </section>
 
-        <section className="section-container bg-secondary/30 relative flex flex-col">
+        <section className="section-container border-t border-primary/5 relative flex flex-col justify-between">
           <div className="flex-grow flex flex-col justify-center">
             <Experience />
           </div>
-          <footer className="border-t border-border/40 py-8 bg-background/50">
-            <div className="container mx-auto max-w-6xl px-4 md:px-8 text-center text-sm text-muted-foreground">
-              <p>© {new Date().getFullYear()} Gyeongho Kim. AI Backend & Serving Engineer.</p>
+          <footer className="border-t border-primary/10 py-10 bg-black/40 backdrop-blur-md">
+            <div className="container mx-auto max-w-6xl px-4 md:px-8 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+              <div className="text-sm text-slate-400">
+                <p>© {new Date().getFullYear()} Gyeongho Kim. All Rights Reserved.</p>
+                <p className="text-xs text-muted-foreground mt-1">AI Backend & Serving Engineer Portfolio</p>
+              </div>
+              <div className="text-xs text-muted-foreground flex gap-6">
+                <a href="#home" className="hover:text-primary transition-colors">Home</a>
+                <a href="#tech-stack" className="hover:text-primary transition-colors">Tech</a>
+                <a href="#projects" className="hover:text-primary transition-colors">Projects</a>
+                <a href="#experience" className="hover:text-primary transition-colors">Experience</a>
+              </div>
             </div>
           </footer>
         </section>
