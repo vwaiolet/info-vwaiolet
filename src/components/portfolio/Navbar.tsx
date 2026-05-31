@@ -30,7 +30,7 @@ export default function Navbar() {
     >
       <div className="container mx-auto flex max-w-6xl items-center justify-between px-4 md:px-8">
         {/* Logo */}
-        <a href="#home" className="flex items-center gap-2 group">
+        <a href="/#home" className="flex items-center gap-2 group">
           <span className="text-xl font-extrabold tracking-wider bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent group-hover:text-glow transition-all">
             {"<VWAIOLET />"}
           </span>
@@ -38,10 +38,11 @@ export default function Navbar() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-semibold tracking-wide">
-          <a href="#home" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Home</a>
-          <a href="#tech-stack" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Tech</a>
-          <a href="#projects" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Projects</a>
-          <a href="#experience" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Experience</a>
+          <a href="/#home" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Home</a>
+          <a href="/#tech-stack" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Tech</a>
+          <a href="/#projects" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Projects</a>
+          <a href="/#experience" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Experience</a>
+          <a href="/blog" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Blog</a>
         </nav>
 
         {/* Contact CTA */}
@@ -70,32 +71,39 @@ export default function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden fixed top-[60px] left-0 w-full h-[calc(100vh-60px)] bg-background/95 backdrop-blur-lg border-t border-primary/10 flex flex-col items-center justify-center gap-8 text-lg font-bold z-40 animate-fade-in">
           <a
-            href="#home"
+            href="/#home"
             onClick={() => setMobileMenuOpen(false)}
             className="text-muted-foreground hover:text-primary transition-colors"
           >
             Home
           </a>
           <a
-            href="#tech-stack"
+            href="/#tech-stack"
             onClick={() => setMobileMenuOpen(false)}
             className="text-muted-foreground hover:text-primary transition-colors"
           >
             Tech
           </a>
           <a
-            href="#projects"
+            href="/#projects"
             onClick={() => setMobileMenuOpen(false)}
             className="text-muted-foreground hover:text-primary transition-colors"
           >
             Projects
           </a>
           <a
-            href="#experience"
+            href="/#experience"
             onClick={() => setMobileMenuOpen(false)}
             className="text-muted-foreground hover:text-primary transition-colors"
           >
             Experience
+          </a>
+          <a
+            href="/blog"
+            onClick={() => setMobileMenuOpen(false)}
+            className="text-muted-foreground hover:text-primary transition-colors"
+          >
+            Blog
           </a>
           <Button asChild size="lg" className="w-[80%] max-w-sm mt-4 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
             <a href={contactHref} onClick={() => setMobileMenuOpen(false)}>
