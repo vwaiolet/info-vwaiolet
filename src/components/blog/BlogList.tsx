@@ -7,13 +7,15 @@ export default function BlogList() {
   return (
     <main className="container mx-auto max-w-6xl px-4 pb-24 pt-28 md:px-8 md:pt-36">
       <div className="mb-12 max-w-3xl">
-        <a href="/#home" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary">
-          <ArrowLeft className="h-4 w-4" />
-          Portfolio
-        </a>
-        <div className="mb-4 inline-flex items-center gap-2 rounded-md border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
-          <BookOpen className="h-3.5 w-3.5" />
-          Study Notes
+        <div className="mb-8 flex flex-wrap items-center gap-4">
+          <a href="/#home" className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary">
+            <ArrowLeft className="h-4 w-4" />
+            Portfolio
+          </a>
+          <div className="inline-flex items-center gap-2 rounded-md border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
+            <BookOpen className="h-3.5 w-3.5" />
+            Study Notes
+          </div>
         </div>
         <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-6xl">
           Blog
