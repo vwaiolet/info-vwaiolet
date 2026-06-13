@@ -1,7 +1,4 @@
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowDown, Eye } from "lucide-react"
-import { ResumeModal } from "./ResumeModal"
 import gsap from "gsap"
 import { useLayoutEffect, useRef } from "react"
 
@@ -53,23 +50,6 @@ export default function Hero() {
           단순히 "돌아가는 기능"을 넘어 "왜 이 아키텍처여야 하는가?"를 끊임없이 고민합니다. 클라우드부터 K3s 기반 엣지 디바이스까지, 비즈니스 효율성을 고려한 최적의 AI 서빙 환경을 구축합니다.
         </p>
 
-        <div
-          data-hero-actions
-          className="flex flex-col gap-4 sm:flex-row mt-6 w-full sm:w-auto justify-center"
-        >
-          <Button asChild size="lg" className="px-8 text-base h-12 bg-primary hover:bg-primary/95 text-primary-foreground font-medium shadow-lg shadow-primary/25 cursor-pointer">
-            <a href="#projects">
-              내 프로젝트 보기
-              <ArrowDown className="ml-2 w-4 h-4" />
-            </a>
-          </Button>
-          <ResumeModal>
-            <Button size="lg" variant="outline" className="px-8 text-base h-12 border-primary/20 hover:border-primary/50 bg-background/50 hover:bg-background/80 cursor-pointer">
-              이력서 열람
-              <Eye className="ml-2 w-4 h-4 text-primary" />
-            </Button>
-          </ResumeModal>
-        </div>
       </div>
     </div>
   )
