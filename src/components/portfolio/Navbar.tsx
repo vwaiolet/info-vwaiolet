@@ -53,17 +53,17 @@ export default function Navbar() {
         </a>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-semibold tracking-wide">
+        <nav className="hidden lg:flex items-center gap-8 text-sm font-semibold tracking-wide">
           <a href="/#home" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Home</a>
           <a href="/#tech-stack" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Tech</a>
           <a href="/#projects" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Projects</a>
           <a href="/#experience" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Experience</a>
-          <a href="/#awards" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Awards</a>
+          <a href="/#awards" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Edu & Awards</a>
           <a href="/blog" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Blog</a>
         </nav>
 
         {/* Contact CTA & Socials */}
-        <div className="hidden md:flex items-center gap-5">
+        <div className="hidden lg:flex items-center gap-5">
           <a
             href="https://github.com/vwaiolet"
             target="_blank"
@@ -82,7 +82,7 @@ export default function Navbar() {
         </div>
 
         {/* Mobile menu button */}
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-2 text-muted-foreground hover:text-primary transition-colors cursor-pointer"
@@ -95,7 +95,7 @@ export default function Navbar() {
 
       {/* Mobile Navigation Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed top-[60px] left-0 w-full h-[calc(100vh-60px)] bg-background/95 backdrop-blur-lg border-t border-primary/10 flex flex-col items-center justify-center gap-8 text-lg font-bold z-40 animate-fade-in">
+        <div className="lg:hidden fixed top-[60px] left-0 w-full h-[calc(100vh-60px)] bg-background/95 backdrop-blur-lg border-t border-primary/10 flex flex-col items-center justify-center gap-8 text-lg font-bold z-40 animate-fade-in">
           <a
             href="/#home"
             onClick={() => setMobileMenuOpen(false)}
@@ -129,7 +129,7 @@ export default function Navbar() {
             onClick={() => setMobileMenuOpen(false)}
             className="text-muted-foreground hover:text-primary transition-colors"
           >
-            Awards
+            Edu & Awards
           </a>
           <a
             href="/blog"

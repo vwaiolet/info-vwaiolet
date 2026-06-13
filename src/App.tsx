@@ -60,7 +60,7 @@ function PortfolioHome() {
             <a href="/#tech-stack" className="hover:text-primary transition-colors">Tech</a>
             <a href="/#projects" className="hover:text-primary transition-colors">Projects</a>
             <a href="/#experience" className="hover:text-primary transition-colors">Experience</a>
-            <a href="/#awards" className="hover:text-primary transition-colors">Awards</a>
+            <a href="/#awards" className="hover:text-primary transition-colors">Edu & Awards</a>
             <a href="/blog" className="hover:text-primary transition-colors">Blog</a>
           </div>
         </div>
