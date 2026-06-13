@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge"
 import { blogPosts, formatPostDate, getBlogPost } from "@/content/blog"
 import { ArrowLeft, CalendarDays, Clock } from "lucide-react"
 import ReactMarkdown, { type Components } from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 type BlogPostProps = {
   slug: string
@@ -76,6 +77,38 @@ const markdownComponents: Components = {
       </code>
     )
   },
+  table: ({ children }) => (
+    <div className="my-6 w-full overflow-x-auto rounded-lg border border-primary/10 bg-black/20">
+      <table className="w-full border-collapse text-left text-sm">
+        {children}
+      </table>
+    </div>
+  ),
+  thead: ({ children }) => (
+    <thead className="border-b border-primary/20 bg-primary/5">
+      {children}
+    </thead>
+  ),
+  tbody: ({ children }) => (
+    <tbody className="divide-y divide-primary/10">
+      {children}
+    </tbody>
+  ),
+  tr: ({ children }) => (
+    <tr className="hover:bg-primary/5 transition-colors">
+      {children}
+    </tr>
+  ),
+  th: ({ children }) => (
+    <th className="px-4 py-3 font-semibold text-slate-200">
+      {children}
+    </th>
+  ),
+  td: ({ children }) => (
+    <td className="px-4 py-3 text-slate-300">
+      {children}
+    </td>
+  ),
 }
 
 export default function BlogPost({ slug }: BlogPostProps) {
@@ -142,7 +175,7 @@ export default function BlogPost({ slug }: BlogPostProps) {
         </header>
 
         <div className="pt-10">
-          <ReactMarkdown components={markdownComponents}>
+          <ReactMarkdown components={markdownComponents} remarkPlugins={[remarkGfm]}>
             {post.content}
           </ReactMarkdown>
         </div>
