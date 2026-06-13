@@ -9,7 +9,7 @@ const awards = [
   {
     title: "로봇융합해커톤 대학일반부 대상",
     organization: "대전광역시 주최 / 우송대학교 주관",
-    date: "2023.09"
+    date: "2023.08"
   }
 ]
 
@@ -17,12 +17,12 @@ const certificates = [
   {
     title: "Microsoft Certified: Azure Fundamentals",
     organization: "Microsoft",
-    date: "2025.06"
+    date: "2024.11"
   },
   {
     title: "PCCE Lv.3 (Python)",
     organization: "프로그래머스",
-    date: "2023.05"
+    date: "2024.05"
   }
 ]
 
