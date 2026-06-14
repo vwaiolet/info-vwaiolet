@@ -7,11 +7,6 @@ gsap.registerPlugin(ScrollTrigger)
 
 const education = [
   {
-    title: "컴퓨터정보보안전공 학사 졸업 (3.72 / 4.5)",
-    institution: "우송대학교",
-    date: "2018.03 - 2023.08"
-  },
-  {
     title: "기업멤버십 AI SW 과정 이수",
     institution: "우송대학교",
     date: "2023.03 - 2023.08"
