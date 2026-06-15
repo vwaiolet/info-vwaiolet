@@ -13,15 +13,18 @@ function App() {
   const isBlogIndex = normalizedPath === "/blog"
 
   return (
-    <div className="dark bg-background text-foreground selection:bg-primary/30 min-h-screen bg-grid-pattern relative overflow-x-hidden">
-      {/* Floating global gradient glow in background */}
-      <div className="absolute top-[20%] left-[10%] w-[35rem] h-[35rem] bg-violet-500/5 rounded-full blur-[120px] -z-10 pointer-events-none" />
-      <div className="absolute top-[50%] right-[5%] w-[40rem] h-[40rem] bg-fuchsia-500/5 rounded-full blur-[130px] -z-10 pointer-events-none" />
-      <div className="absolute top-[80%] left-[20%] w-[30rem] h-[30rem] bg-indigo-500/5 rounded-full blur-[110px] -z-10 pointer-events-none" />
+    <div className="dark bg-background text-foreground selection:bg-primary/30 min-h-screen bg-grid-pattern relative flex flex-col">
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[20%] left-[10%] w-[35rem] h-[35rem] bg-violet-500/5 rounded-full blur-[120px]" />
+        <div className="absolute top-[50%] right-[5%] w-[40rem] h-[40rem] bg-fuchsia-500/5 rounded-full blur-[130px]" />
+        <div className="absolute top-[80%] left-[20%] w-[30rem] h-[30rem] bg-indigo-500/5 rounded-full blur-[110px]" />
+      </div>
 
       <Navbar />
 
-      {isBlogIndex ? <BlogList /> : blogSlug ? <BlogPost slug={blogSlug} /> : <PortfolioHome />}
+      <div className="relative z-10 flex-1">
+        {isBlogIndex ? <BlogList /> : blogSlug ? <BlogPost slug={blogSlug} /> : <PortfolioHome />}
+      </div>
       <SiteFooter />
     </div>
   )
