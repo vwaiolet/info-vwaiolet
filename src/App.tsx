@@ -22,6 +22,7 @@ function App() {
       <Navbar />
 
       {isBlogIndex ? <BlogList /> : blogSlug ? <BlogPost slug={blogSlug} /> : <PortfolioHome />}
+      <SiteFooter />
     </div>
   )
 }
@@ -49,23 +50,28 @@ function PortfolioHome() {
         <CertificatesAndAwards />
       </section>
 
-      <footer className="border-t border-primary/10 py-10 bg-black/40 backdrop-blur-md relative z-10">
-        <div className="container mx-auto max-w-6xl px-4 md:px-8 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
-          <div className="text-sm text-slate-400">
-            <p>© {new Date().getFullYear()} Gyeongho Kim. All Rights Reserved.</p>
-            <p className="text-xs text-muted-foreground mt-1">AI Backend & Serving Engineer Portfolio</p>
-          </div>
-          <div className="text-xs text-muted-foreground flex gap-6">
-            <a href="/#home" className="hover:text-primary transition-colors">Home</a>
-            <a href="/#tech-stack" className="hover:text-primary transition-colors">Tech</a>
-            <a href="/#projects" className="hover:text-primary transition-colors">Projects</a>
-            <a href="/#experience" className="hover:text-primary transition-colors">Experience</a>
-            <a href="/#awards" className="hover:text-primary transition-colors">Edu & Awards</a>
-            <a href="/blog" className="hover:text-primary transition-colors">Blog</a>
-          </div>
-        </div>
-      </footer>
     </main>
+  )
+}
+
+function SiteFooter() {
+  return (
+    <footer className="border-t border-primary/10 py-10 bg-black/40 backdrop-blur-md relative z-10">
+      <div className="container mx-auto max-w-6xl px-4 md:px-8 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+        <div className="text-sm text-slate-400">
+          <p>© {new Date().getFullYear()} Gyeongho Kim. All Rights Reserved.</p>
+          <p className="text-xs text-muted-foreground mt-1">AI Backend & Serving Engineer Portfolio</p>
+        </div>
+        <div className="text-xs text-muted-foreground flex flex-wrap justify-center gap-6 md:justify-start">
+          <a href="/#home" className="hover:text-primary transition-colors">Home</a>
+          <a href="/#tech-stack" className="hover:text-primary transition-colors">Tech</a>
+          <a href="/#projects" className="hover:text-primary transition-colors">Projects</a>
+          <a href="/#experience" className="hover:text-primary transition-colors">Experience</a>
+          <a href="/#awards" className="hover:text-primary transition-colors">Edu & Awards</a>
+          <a href="/blog" className="hover:text-primary transition-colors">Blog</a>
+        </div>
+      </div>
+    </footer>
   )
 }
 
