@@ -80,9 +80,7 @@
 }
 
 @layer base {
-  html,
-  body,
-  #root {
+  html {
     min-height: 100%;
     background: #030306;
     max-width: 100%;
@@ -90,9 +88,18 @@
   }
 
   body {
+    min-height: 100%;
+    background: #030306;
+    max-width: 100%;
+  }
+
+  #root {
+    min-height: 100%;
+  }
+
+  body {
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
-    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
