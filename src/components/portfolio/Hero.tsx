@@ -13,7 +13,6 @@ export default function Hero() {
         .fromTo("[data-hero-badge]", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8 })
         .fromTo("[data-hero-title]", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1 }, "-=0.55")
         .fromTo("[data-hero-copy]", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8 }, "-=0.45")
-        .fromTo("[data-hero-actions]", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8 }, "-=0.35")
     }, heroRef)
 
     return () => ctx.revert()
