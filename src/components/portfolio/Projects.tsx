@@ -1,10 +1,20 @@
-﻿import { Card, CardDescription, CardFooter, CardTitle } from "@/components/ui/card"
+import { Card, CardDescription, CardFooter, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Archive, Cpu, Database, Lock, Network, Server } from "lucide-react"
+import { Archive, Cpu, Database, Lock, Network, Server, FileText, Code } from "lucide-react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useLayoutEffect, useRef } from "react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+
+// Markdown Content Imports (separated from code)
+import vehicleVssMd from "@/content/vehicle-vss.md?raw"
+// import asyncBackendMd from "@/content/async-backend.md?raw"
+// import lmsAiMd from "@/content/lms-ai.md?raw"
+// import binanceArchiveMd from "@/content/binance-archive.md?raw"
+// import projectNexusMd from "@/content/project-nexus.md?raw"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -25,7 +35,9 @@ const projectGroups = [
           { label: "오탐률", value: "80% 감소" },
           { label: "추론 속도", value: "18ms" },
           { label: "대상 환경", value: "Jetson Orin" }
-        ]
+        ],
+        markdownContent: vehicleVssMd,
+        repoUrl: "",
       },
       {
         title: "대용량 트래픽 처리를 위한 비동기 AI 백엔드",
@@ -37,7 +49,9 @@ const projectGroups = [
           { label: "대기 지연", value: "95% 단축" },
           { label: "동시 처리", value: "FastAPI Async" },
           { label: "클라우드", value: "GCP Vertex AI" }
-        ]
+        ],
+        markdownContent: "",
+        repoUrl: "",
       },
       {
         title: "맥락 유지형 LMS AI 솔루션",
@@ -46,10 +60,12 @@ const projectGroups = [
         visualLabel: "Context Grounding",
         icon: Database,
         metrics: [
-          { label: "맥락 크기", value: "2M Tokens" },
+          { label: "맥락 크기", value: "1M Tokens" },
           { label: "기반 모델", value: "Gemini 1.5 Pro" },
           { label: "정확도", value: "98% 보장" }
-        ]
+        ],
+        markdownContent: "",
+        repoUrl: "",
       }
     ]
   },
@@ -69,19 +85,23 @@ const projectGroups = [
           { label: "적재 속도", value: "1.2M msgs/s" },
           { label: "저장 엔진", value: "ClickHouse" },
           { label: "최적화", value: "Native AOT" }
-        ]
+        ],
+        markdownContent: "",
+        repoUrl: "",
       },
       {
         title: "Project Nexus",
-        description: "Docker Compose 환경에서 동일 네트워크 내 컨테이너 상태, Healthcheck, DNS/TCP 연결성, 인증 실패 로그 패턴을 주기적으로 감시하는 .NET 8 모니터링 데몬입니다. Docker Socket 기반 네트워크 자동 감지와 내장 웹 대시보드를 구현했습니다.",
-        tags: [".NET 8", "Docker API", "ASP.NET Core", "Monitoring", "Dashboard"],
+        description: "Docker Compose 환경에서 동일 네트워크 내 컨테이너 상태, Healthcheck, DNS/TCP 연결성, 인증 실패 로그 패턴을 주기적으로 감시하는 .NET 10 모니터링 데몬입니다. Docker Socket 기반 네트워크 자동 감지와 내장 웹 대시보드를 구현했습니다.",
+        tags: [".NET 10", "Docker API", "ASP.NET Core", "Monitoring", "Dashboard"],
         visualLabel: "Docker Monitor",
         icon: Network,
         metrics: [
-          { label: "감시 주기", value: "10초" },
+          { label: "감시 주기", value: "1초" },
           { label: "상태 감지", value: "Docker Socket" },
           { label: "네트워크", value: "DNS/TCP Probe" }
-        ]
+        ],
+        markdownContent: "",
+        repoUrl: "",
       }
     ]
   }
@@ -182,7 +202,7 @@ export default function Projects() {
             </div>
             <div className={`grid gap-8 ${group.gridClassName}`}>
               {group.projects.map((project) => (
-                <ProjectCard key={project.title} project={project} footerLabel={group.footerLabel} />
+                <ProjectCard key={project.title} project={project} />
               ))}
             </div>
           </section>
@@ -194,7 +214,7 @@ export default function Projects() {
 
 type Project = (typeof projectGroups)[number]["projects"][number]
 
-function ProjectCard({ project, footerLabel }: { project: Project; footerLabel: string }) {
+function ProjectCard({ project }: { project: Project }) {
   const Icon = project.icon
 
   return (
@@ -254,11 +274,110 @@ function ProjectCard({ project, footerLabel }: { project: Project; footerLabel: 
         </div>
 
         {/* Card Footer locked at bottom, preventing shrinking */}
-        <CardFooter className="gap-3 pt-4 pb-6 border-t border-primary/10 bg-black/20 shrink-0 mt-auto">
-          <Button variant="outline" size="sm" className="w-full gap-2 h-10 border-primary/10 hover:border-primary/30 text-xs font-semibold bg-background/30 hover:bg-background/80 cursor-default" disabled>
-            <Lock className="w-3.5 h-3.5 text-slate-500" />
-            <span className="text-slate-500 text-xs">{footerLabel}</span>
-          </Button>
+        <CardFooter className="grid grid-cols-2 gap-2 pt-4 pb-6 px-4 border-t border-primary/10 bg-black/20 shrink-0 mt-auto">
+          {/* Technical Document Button */}
+          {project.markdownContent ? (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full gap-1.5 h-10 border-primary/15 hover:border-primary/40 hover:text-primary text-[11px] sm:text-xs font-semibold bg-background/30 hover:bg-background/80 transition-all duration-300 cursor-pointer"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>기술 문서</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="w-full max-w-[calc(100%-2rem)] sm:max-w-2xl md:max-w-4xl lg:max-w-5xl max-h-[88vh] overflow-hidden bg-[#07070d]/95 border-primary/20 backdrop-blur-md text-slate-300 shadow-2xl p-6 sm:p-8 md:p-10 flex flex-col gap-0 rounded-xl">
+                <DialogHeader className="mb-6 pb-4 border-b border-primary/10 shrink-0">
+                  <DialogTitle className="text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
+                    <FileText className="w-5.5 h-5.5 text-primary" />
+                    <span>{project.title}</span>
+                  </DialogTitle>
+                  <DialogDescription className="text-slate-400 text-xs mt-1">
+                    {project.description}
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="flex-1 overflow-y-auto pr-1">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      /* eslint-disable @typescript-eslint/no-unused-vars */
+                      h1: ({ node, ...props }) => <h1 className="text-2xl font-extrabold tracking-tight mb-4 mt-6 bg-gradient-to-r from-foreground via-foreground to-purple-400/80 bg-clip-text text-transparent border-b border-primary/10 pb-2 font-heading" {...props} />,
+                      h2: ({ node, ...props }) => <h2 className="text-xl font-bold tracking-tight mb-3 mt-5 text-glow font-heading text-white" {...props} />,
+                      h3: ({ node, ...props }) => <h3 className="text-lg font-bold tracking-tight mb-2 mt-4 text-white/90" {...props} />,
+                      p: ({ node, ...props }) => <p className="text-sm leading-relaxed text-slate-300 mb-4" {...props} />,
+                      ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-4 text-slate-300 space-y-1" {...props} />,
+                      ol: ({ node, ...props }) => <ol className="list-decimal pl-5 mb-4 text-slate-300 space-y-1" {...props} />,
+                      li: ({ node, ...props }) => <li className="text-sm leading-relaxed" {...props} />,
+                      code: ({ node, ...props }) => (
+                        <code className="bg-primary/10 border border-primary/25 rounded px-1.5 py-0.5 text-xs text-primary font-mono" {...props} />
+                      ),
+                      pre: ({ node, ...props }) => (
+                        <pre className="bg-black/50 border border-primary/15 rounded-lg p-4 overflow-x-auto mb-4 font-mono text-xs text-slate-300" {...props} />
+                      ),
+                      blockquote: ({ node, ...props }) => (
+                        <blockquote className="border-l-2 border-primary/40 pl-4 italic text-muted-foreground my-4 bg-primary/5 py-1 pr-2 rounded-r" {...props} />
+                      ),
+                      a: ({ node, ...props }) => (
+                        <a className="text-primary hover:underline font-semibold" target="_blank" rel="noopener noreferrer" {...props} />
+                      ),
+                      table: ({ node, ...props }) => (
+                        <div className="overflow-x-auto my-6 border border-primary/10 rounded-lg">
+                          <table className="w-full text-sm border-collapse text-slate-300" {...props} />
+                        </div>
+                      ),
+                      th: ({ node, ...props }) => (
+                        <th className="border-b border-primary/10 bg-primary/5 px-4 py-2 font-bold text-left text-white" {...props} />
+                      ),
+                      td: ({ node, ...props }) => (
+                        <td className="border-b border-primary/5 px-4 py-2 text-slate-400" {...props} />
+                      ),
+                      /* eslint-enable @typescript-eslint/no-unused-vars */
+                    }}
+                  >
+                    {project.markdownContent}
+                  </ReactMarkdown>
+                </div>
+              </DialogContent>
+            </Dialog>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full gap-1.5 h-10 border-primary/10 text-[11px] sm:text-xs font-semibold bg-background/20 cursor-default text-slate-500 hover:bg-background/20"
+              disabled
+            >
+              <Lock className="w-3.5 h-3.5 text-slate-500" />
+              <span>문서 비공개</span>
+            </Button>
+          )}
+
+          {/* Code Repository Button */}
+          {project.repoUrl ? (
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="w-full gap-1.5 h-10 border-primary/15 hover:border-primary/40 hover:text-primary text-[11px] sm:text-xs font-semibold bg-background/30 hover:bg-background/80 transition-all duration-300 cursor-pointer"
+            >
+              <a href={project.repoUrl} target="_blank" rel="noopener noreferrer">
+                <Code className="w-3.5 h-3.5" />
+                <span>코드 저장소</span>
+              </a>
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full gap-1.5 h-10 border-primary/10 text-[11px] sm:text-xs font-semibold bg-background/20 cursor-default text-slate-500 hover:bg-background/20"
+              disabled
+            >
+              <Lock className="w-3.5 h-3.5 text-slate-500" />
+              <span>저장소 비공개</span>
+            </Button>
+          )}
         </CardFooter>
       </Card>
     </div>
