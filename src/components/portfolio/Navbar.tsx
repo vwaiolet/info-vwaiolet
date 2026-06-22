@@ -59,7 +59,7 @@ export default function Navbar() {
           <a href="/#projects" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Projects</a>
           <a href="/#experience" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Experience</a>
           <a href="/#awards" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Edu & Awards</a>
-          <a href="/blog" className="text-muted-foreground hover:text-primary hover:text-glow transition-all duration-200">Blog</a>
+
         </nav>
 
         {/* Contact CTA & Socials */}
@@ -131,13 +131,7 @@ export default function Navbar() {
           >
             Edu & Awards
           </a>
-          <a
-            href="/blog"
-            onClick={() => setMobileMenuOpen(false)}
-            className="text-muted-foreground hover:text-primary transition-colors"
-          >
-            Blog
-          </a>
+
           <a
             href="https://github.com/vwaiolet"
             target="_blank"

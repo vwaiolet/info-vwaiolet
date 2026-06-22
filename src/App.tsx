@@ -1,5 +1,3 @@
-import BlogList from "@/components/blog/BlogList"
-import BlogPost from "@/components/blog/BlogPost"
 import Navbar from "@/components/portfolio/Navbar"
 import Hero from "@/components/portfolio/Hero"
 import TechStack from "@/components/portfolio/TechStack"
@@ -8,10 +6,6 @@ import Experience from "@/components/portfolio/Experience"
 import CertificatesAndAwards from "@/components/portfolio/CertificatesAndAwards"
 
 function App() {
-  const normalizedPath = window.location.pathname.replace(/\/$/, "") || "/"
-  const blogSlug = normalizedPath.startsWith("/blog/") ? decodeURIComponent(normalizedPath.replace("/blog/", "")) : null
-  const isBlogIndex = normalizedPath === "/blog"
-
   return (
     <div className="dark bg-background text-foreground selection:bg-primary/30 min-h-screen bg-grid-pattern relative flex flex-col">
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
@@ -23,7 +17,7 @@ function App() {
       <Navbar />
 
       <div className="relative z-10 flex-1">
-        {isBlogIndex ? <BlogList /> : blogSlug ? <BlogPost slug={blogSlug} /> : <PortfolioHome />}
+        <PortfolioHome />
       </div>
       <SiteFooter />
     </div>
@@ -71,7 +65,6 @@ function SiteFooter() {
           <a href="/#projects" className="hover:text-primary transition-colors">Projects</a>
           <a href="/#experience" className="hover:text-primary transition-colors">Experience</a>
           <a href="/#awards" className="hover:text-primary transition-colors">Edu & Awards</a>
-          <a href="/blog" className="hover:text-primary transition-colors">Blog</a>
         </div>
       </div>
     </footer>
