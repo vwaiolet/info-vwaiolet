@@ -18,7 +18,7 @@ const techData = [
     category: "Backend & APIs",
     icon: Cpu,
     description: "고성능 비동기 분산 서버 설계",
-    skills: ["Python", "FastAPI", "Django", ".NET 8", "ASP.NET Core", "Minimal API"]
+    skills: ["Python", "FastAPI", "Django", ".NET 10", "ASP.NET Core", "Minimal API"]
   },
   {
     category: "Data & Ingestion",
