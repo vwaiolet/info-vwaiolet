@@ -11,8 +11,8 @@ import remarkGfm from "remark-gfm"
 
 // Markdown Content Imports (separated from code)
 import vehicleVssMd from "@/content/vehicle-vss.md?raw"
-// import asyncBackendMd from "@/content/async-backend.md?raw"
-// import lmsAiMd from "@/content/lms-ai.md?raw"
+import asyncBackendMd from "@/content/async-backend.md?raw"
+import lmsAiMd from "@/content/lms-ai.md?raw"
 // import binanceArchiveMd from "@/content/binance-archive.md?raw"
 // import projectNexusMd from "@/content/project-nexus.md?raw"
 
@@ -50,7 +50,7 @@ const projectGroups = [
           { label: "동시 처리", value: "FastAPI Async" },
           { label: "클라우드", value: "GCP Vertex AI" }
         ],
-        markdownContent: "",
+        markdownContent: asyncBackendMd,
         repoUrl: "",
       },
       {
@@ -64,7 +64,7 @@ const projectGroups = [
           { label: "기반 모델", value: "Gemini 1.5 Pro" },
           { label: "정확도", value: "98% 보장" }
         ],
-        markdownContent: "",
+        markdownContent: lmsAiMd,
         repoUrl: "",
       }
     ]
