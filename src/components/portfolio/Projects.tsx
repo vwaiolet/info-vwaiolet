@@ -13,8 +13,8 @@ import remarkGfm from "remark-gfm"
 import vehicleVssMd from "@/content/vehicle-vss.md?raw"
 import asyncBackendMd from "@/content/async-backend.md?raw"
 import lmsAiMd from "@/content/lms-ai.md?raw"
-// import binanceArchiveMd from "@/content/binance-archive.md?raw"
-// import projectNexusMd from "@/content/project-nexus.md?raw"
+import binanceArchiveMd from "@/content/binance-archive.md?raw"
+import projectNexusMd from "@/content/project-nexus.md?raw"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -61,7 +61,7 @@ const projectGroups = [
         icon: Database,
         metrics: [
           { label: "맥락 크기", value: "1M Tokens" },
-          { label: "기반 모델", value: "Gemini 1.5 Pro" },
+          { label: "기반 모델", value: "Gemini 2.0 Flash" },
           { label: "정확도", value: "98% 보장" }
         ],
         markdownContent: lmsAiMd,
@@ -86,7 +86,7 @@ const projectGroups = [
           { label: "저장 엔진", value: "ClickHouse" },
           { label: "최적화", value: "Native AOT" }
         ],
-        markdownContent: "",
+        markdownContent: binanceArchiveMd,
         repoUrl: "",
       },
       {
@@ -100,7 +100,7 @@ const projectGroups = [
           { label: "상태 감지", value: "Docker Socket" },
           { label: "네트워크", value: "DNS/TCP Probe" }
         ],
-        markdownContent: "",
+        markdownContent: projectNexusMd,
         repoUrl: "",
       }
     ]
