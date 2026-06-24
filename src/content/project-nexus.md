@@ -1,15 +1,14 @@
-# Project Nexus
+### 프로젝트 개요
 
-Docker Compose 환경에서 동일 네트워크 내 컨테이너 상태, Healthcheck, DNS/TCP 연결성, 인증 실패 로그 패턴을 주기적으로 감시하는 .NET 10 모니터링 데몬입니다.
+- 개발 포지션: 백엔드 / 시스템 소프트웨어 엔지니어 (1인 개발)
+- 핵심 역할: 격리된 Docker 네트워크 환경에서 동작하는 무의존성 초경량 컨테이너 감시 데몬 설계 및 구현
+- 주요 기술 스택: .NET (C#), ASP.NET Core Minimal API, Native AOT (Ahead-Of-Time), Docker Engine API, SocketsHttpHandler (Unix Domain Socket / Named Pipe), HTML5/Vanila CSS/JavaScript (Embedded UI) 
 
-## 🚀 Key Architectures
-- **Docker Socket Integration**: Docker API를 구독하여 실시간 네트워크 토폴로지 및 컨테이너 메타데이터 수집
-- **Active Probing**: DNS 분석과 TCP 연결성 검사, REST API 헬스체크를 수행하는 비동기 워커 서비스
-- **Web Dashboard**: ASP.NET Core 기반 실시간 컨테이너 상태 가시화 및 알림 전송 기능
+### 성과 및 경험
 
-## 🛠 Tech Stack
-- `.NET 10`, `Docker API`, `ASP.NET Core`, `Monitoring`, `Dashboard`
-
-## 📈 Performance & Results
-- **10초** 주기 감시를 통해 인프라 연결 장애 시 1초 내로 복구를 위한 얼럿을 전송합니다.
-- 복잡한 가상화 네트워크 내 DNS 해석 장애 지점을 조기에 추적하여 모니터링 가용성을 향상했습니다.
+- 소규모 컨테이너 서비스(예: Docker Compose 배포 환경)에서 각 컨테이너의 헬스체크, 내부 격리망 내 서비스 연결성, 그리고 애플리케이션의 오동작(예: DB 인증 실패, 데드락 등)을 실시간으로 감시할 필요성이 대두되었음
+- 그러나 Prometheus, Grafana, ELK Stack과 같은 전통적인 모니터링 아키텍처는 도입 및 리소스 비용이 커서 소규모/경량 서버 환경에 적합하지 않았음
+- 호스트에 에이전트를 설치해야 하거나, 모니터링을 위한 추가 컨테이너가 시스템 자원을 과도하게 소모(CPU, 메모리 풋프린트)하는 문제가 존재했음
+- 별도의 외부 라이브러리나 무거운 모니터링 시스템 인프라 없이, Docker network에 컨테이너로 함께 실행하기만 하면 자동으로 다른 컨테이너를 탐지하고 감시하는 초경량 모니터링 데몬을 구축해야 했음
+- 의존성 0의 경량화 달성: 타사 Docker SDK, 정적 웹서버 서빙용 라이브러리 등을 모두 걷어내어 순수 .NET 기본 API만으로 구성된 시스템을 완성했음
+- 리소스 점유율 극소화: 10개 이상의 컨테이너를 감시하는 부하 상황에서도 데몬의 CPU 점유율 1% 미만, 메모리 사용량 30MB 안팎을 기록했음
