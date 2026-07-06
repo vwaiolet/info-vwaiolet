@@ -27,26 +27,26 @@ export default function Hero() {
       <div className="flex flex-col items-center text-center gap-6 max-w-4xl mx-auto">
         <div data-hero-badge>
           <Badge variant="outline" className="px-3 py-1 text-xs font-semibold uppercase tracking-wider border-primary/30 bg-primary/5 text-primary">
-            ⚡ AI BACKEND & SERVING ENGINEER
+            ⚡ SYSTEM & SERVING INFRA ENGINEER
           </Badge>
         </div>
 
         <h1
           data-hero-title
-          className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl leading-[1.15] text-foreground font-heading"
+          className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl leading-[1.15] text-foreground font-heading break-keep"
         >
-          안녕하세요, <br />
+          단순 AI 연동을 넘어, <br />
           <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-fuchsia-400 bg-clip-text text-transparent text-glow">
-            모델의 가치를 서비스로
+            컨테이너 최적화와 OS/네트워크 병목을 해결하는
           </span> <br />
-          연결하는 엔지니어입니다.
+          엔지니어입니다.
         </h1>
 
         <p
           data-hero-copy
-          className="max-w-[750px] text-base sm:text-lg md:text-xl text-slate-300 leading-relaxed mt-2"
+          className="max-w-[750px] text-base sm:text-lg md:text-xl text-slate-300 leading-relaxed mt-2 break-keep"
         >
-          단순히 "돌아가는 기능"을 넘어 "왜 이 아키텍처여야 하는가?"를 끊임없이 고민합니다. 클라우드부터 K3s 기반 엣지 디바이스까지, 비즈니스 효율성을 고려한 최적의 AI 서빙 환경을 구축합니다.
+          단순히 "돌아가는 기능"을 넘어 "왜 이 아키텍처여야 하는가?"를 끊임없이 고민합니다. 클라우드부터 엣지 디바이스까지, 효율성을 고려한 최적의 AI 서빙 환경을 구축합니다.
         </p>
 
       </div>

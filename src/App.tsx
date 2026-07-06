@@ -57,7 +57,7 @@ function SiteFooter() {
       <div className="container mx-auto max-w-6xl px-4 md:px-8 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
         <div className="text-sm text-slate-400">
           <p>© {new Date().getFullYear()} Gyeongho Kim. All Rights Reserved.</p>
-          <p className="text-xs text-muted-foreground mt-1">AI Backend & Serving Engineer Portfolio</p>
+          <p className="text-xs text-muted-foreground mt-1">SYSTEM & SERVING INFRA ENGINEER Portfolio</p>
         </div>
         <div className="text-xs text-muted-foreground flex flex-wrap justify-center gap-6 md:justify-start">
           <a href="/#home" className="hover:text-primary transition-colors">Home</a>
