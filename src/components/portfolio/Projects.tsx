@@ -13,15 +13,16 @@ import mermaid from "mermaid"
 
 function Mermaid({ chart }: { chart: string }) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const previewRef = useRef<HTMLDivElement>(null)
   const [error, setError] = useState<string | null>(null)
   const [isOpen, setIsOpen] = useState(false)
+  const [zoomedSvg, setZoomedSvg] = useState<string>("")
 
   // rendering logic helper
-  const renderDiagram = async (targetNode: HTMLDivElement) => {
+  const renderDiagram = async () => {
+    if (!containerRef.current) return
     try {
-      targetNode.innerHTML = chart
-      targetNode.removeAttribute("data-processed")
+      containerRef.current.innerHTML = chart
+      containerRef.current.removeAttribute("data-processed")
       
       mermaid.initialize({
         startOnLoad: false,
@@ -38,8 +39,9 @@ function Mermaid({ chart }: { chart: string }) {
       })
 
       await mermaid.run({
-        nodes: [targetNode]
+        nodes: [containerRef.current]
       })
+      setError(null)
     } catch (err: any) {
       console.error("Mermaid run error:", err)
       setError(err.message || String(err))
@@ -47,30 +49,19 @@ function Mermaid({ chart }: { chart: string }) {
   }
 
   useEffect(() => {
-    if (!containerRef.current) return
     setError(null)
-    
     // Small delay to ensure React lifecycle mounting is complete
-    const timeoutId = setTimeout(() => {
-      if (containerRef.current) {
-        renderDiagram(containerRef.current)
-      }
-    }, 50)
-
+    const timeoutId = setTimeout(renderDiagram, 50)
     return () => clearTimeout(timeoutId)
   }, [chart])
 
-  // Render modal diagram once open
-  useEffect(() => {
-    if (isOpen && previewRef.current) {
-      const timeoutId = setTimeout(() => {
-        if (previewRef.current) {
-          renderDiagram(previewRef.current)
-        }
-      }, 100)
-      return () => clearTimeout(timeoutId)
+  // Capture current rendered SVG and open modal
+  const handleOpenZoom = () => {
+    if (containerRef.current) {
+      setZoomedSvg(containerRef.current.innerHTML)
+      setIsOpen(true)
     }
-  }, [isOpen])
+  }
 
   if (error) {
     return (
@@ -140,6 +131,7 @@ function Mermaid({ chart }: { chart: string }) {
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
           <button 
+            onClick={handleOpenZoom}
             className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-lg border border-primary/20 bg-background/80 text-muted-foreground backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:text-primary hover:border-primary/45 transition-all duration-300 cursor-pointer shadow-lg"
             title="다이어그램 확대 보기"
           >
@@ -159,18 +151,16 @@ function Mermaid({ chart }: { chart: string }) {
           
           <div className="flex-1 overflow-auto flex items-start justify-center p-4 bg-black/40 border border-primary/10 rounded-xl">
             <div 
-              ref={previewRef}
               className="zoom-mermaid select-none flex justify-center w-full min-w-[800px] md:min-w-[1200px] p-6"
-            >
-              <span className="text-xs text-muted-foreground animate-pulse">확대 다이어그램 로딩 중...</span>
-            </div>
+              dangerouslySetInnerHTML={{ __html: zoomedSvg }}
+            />
           </div>
         </DialogContent>
       </Dialog>
 
       <div 
         ref={containerRef}
-        onClick={() => setIsOpen(true)}
+        onClick={handleOpenZoom}
         className="mermaid flex justify-center p-4 my-6 bg-[#07070d]/60 border border-primary/10 rounded-xl overflow-x-auto w-full select-none shadow-inner cursor-pointer hover:border-primary/30 transition-all duration-300"
       >
         {chart}
