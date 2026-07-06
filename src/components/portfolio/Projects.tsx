@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { Card, CardDescription, CardFooter, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Archive, Cpu, Lock, Network, Server, FileText, Code } from "lucide-react"
+import { Archive, Cpu, Lock, Network, Server, FileText, Code, Maximize2, ZoomIn } from "lucide-react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { useLayoutEffect, useRef } from "react"
+import { useLayoutEffect } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -13,58 +13,64 @@ import mermaid from "mermaid"
 
 function Mermaid({ chart }: { chart: string }) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const previewRef = useRef<HTMLDivElement>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isOpen, setIsOpen] = useState(false)
+
+  // rendering logic helper
+  const renderDiagram = async (targetNode: HTMLDivElement) => {
+    try {
+      targetNode.innerHTML = chart
+      targetNode.removeAttribute("data-processed")
+      
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "dark",
+        securityLevel: "loose",
+        themeVariables: {
+          background: "transparent",
+          primaryColor: "#a78bfa",
+          primaryTextColor: "#fff",
+          lineColor: "#7c3aed",
+          nodeBorder: "#a78bfa",
+          mainBkg: "#07070d",
+        }
+      })
+
+      await mermaid.run({
+        nodes: [targetNode]
+      })
+    } catch (err: any) {
+      console.error("Mermaid run error:", err)
+      setError(err.message || String(err))
+    }
+  }
 
   useEffect(() => {
     if (!containerRef.current) return
-
-    let isMounted = true
-
-    // Reset contents
-    containerRef.current.innerHTML = chart
-    containerRef.current.removeAttribute("data-processed")
-
-    const renderDiagram = async () => {
-      try {
-        mermaid.initialize({
-          startOnLoad: false,
-          theme: "dark",
-          securityLevel: "loose",
-          themeVariables: {
-            background: "transparent",
-            primaryColor: "#a78bfa",
-            primaryTextColor: "#fff",
-            lineColor: "#7c3aed",
-            nodeBorder: "#a78bfa",
-            mainBkg: "#07070d",
-          }
-        })
-
-        const node = containerRef.current
-        if (node) {
-          await mermaid.run({
-            nodes: [node]
-          })
-        }
-        if (isMounted) {
-          setError(null)
-        }
-      } catch (err: any) {
-        console.error("Mermaid run error:", err)
-        if (isMounted) {
-          setError(err.message || String(err))
-        }
-      }
-    }
-
+    setError(null)
+    
     // Small delay to ensure React lifecycle mounting is complete
-    const timeoutId = setTimeout(renderDiagram, 50)
+    const timeoutId = setTimeout(() => {
+      if (containerRef.current) {
+        renderDiagram(containerRef.current)
+      }
+    }, 50)
 
-    return () => {
-      isMounted = false
-      clearTimeout(timeoutId)
-    }
+    return () => clearTimeout(timeoutId)
   }, [chart])
+
+  // Render modal diagram once open
+  useEffect(() => {
+    if (isOpen && previewRef.current) {
+      const timeoutId = setTimeout(() => {
+        if (previewRef.current) {
+          renderDiagram(previewRef.current)
+        }
+      }, 100)
+      return () => clearTimeout(timeoutId)
+    }
+  }, [isOpen])
 
   if (error) {
     return (
@@ -80,7 +86,7 @@ function Mermaid({ chart }: { chart: string }) {
   }
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full group">
       {/* Dynamic override styles for Mermaid dark mode compatibility */}
       <style>{`
         .mermaid svg {
@@ -122,10 +128,50 @@ function Mermaid({ chart }: { chart: string }) {
           color: #a78bfa !important;
           font-weight: 700 !important;
         }
+        /* Style for fullscreen zoomed container */
+        .zoom-mermaid svg {
+          max-width: none !important;
+          width: 125% !important;
+          height: auto !important;
+        }
       `}</style>
-      <div
+
+      {/* Hover maximize button */}
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <button 
+            className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-lg border border-primary/20 bg-background/80 text-muted-foreground backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:text-primary hover:border-primary/45 transition-all duration-300 cursor-pointer shadow-lg"
+            title="다이어그램 확대 보기"
+          >
+            <Maximize2 className="h-4 w-4" />
+          </button>
+        </DialogTrigger>
+        <DialogContent className="w-full max-w-[95vw] md:max-w-[90vw] max-h-[92vh] overflow-hidden bg-[#07070d]/98 border-primary/25 backdrop-blur-xl text-slate-300 shadow-2xl p-6 md:p-8 flex flex-col gap-4 rounded-2xl z-[100]">
+          <DialogHeader className="pb-2 border-b border-primary/10 shrink-0">
+            <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
+              <ZoomIn className="w-5 h-5 text-primary" />
+              <span>시스템 아키텍처 다이어그램 확대</span>
+            </DialogTitle>
+            <DialogDescription className="text-slate-400 text-xs">
+              마우스 스크롤이나 드래그를 이용해 다이어그램 구조를 상세히 확인할 수 있습니다.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-auto flex items-start justify-center p-4 bg-black/40 border border-primary/10 rounded-xl">
+            <div 
+              ref={previewRef}
+              className="zoom-mermaid select-none flex justify-center w-full min-w-[800px] md:min-w-[1200px] p-6"
+            >
+              <span className="text-xs text-muted-foreground animate-pulse">확대 다이어그램 로딩 중...</span>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <div 
         ref={containerRef}
-        className="mermaid flex justify-center p-4 my-6 bg-[#07070d]/60 border border-primary/10 rounded-xl overflow-x-auto w-full select-none shadow-inner"
+        onClick={() => setIsOpen(true)}
+        className="mermaid flex justify-center p-4 my-6 bg-[#07070d]/60 border border-primary/10 rounded-xl overflow-x-auto w-full select-none shadow-inner cursor-pointer hover:border-primary/30 transition-all duration-300"
       >
         {chart}
       </div>
