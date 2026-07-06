@@ -1,6 +1,6 @@
-﻿import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Brain, Cpu, Database, Layout, Cloud, Activity } from "lucide-react"
+import { Brain, Cpu, Database, Network, Cloud, Activity } from "lucide-react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useLayoutEffect, useRef } from "react"
@@ -9,40 +9,40 @@ gsap.registerPlugin(ScrollTrigger)
 
 const techData = [
   {
-    category: "AI & Serving",
+    category: "Serving & Virtualization",
     icon: Brain,
-    description: "거대 언어 모델(LLM) 및 AI 서빙 최적화",
-    skills: ["Ollama", "Vertex AI", "Gemini API", "OpenAI API", "BERT", "USAD", "TensorRT"]
+    description: "제한된 자원 환경 하의 AI 추론 및 경량 가속화",
+    skills: ["Ollama", "TensorRT", "ONNX Runtime", "K3s", "Docker", "Docker Compose"]
   },
   {
-    category: "Backend & APIs",
+    category: "Backend & Systems",
     icon: Cpu,
-    description: "고성능 비동기 분산 서버 설계",
-    skills: ["Python", "FastAPI", "Django", ".NET 10", "ASP.NET Core", "Minimal API"]
+    description: "고성능 비동기 분산 서버 및 시스템 소프트웨어 설계",
+    skills: ["C#", ".NET 10", "ASP.NET Core", "Python", "FastAPI"]
   },
   {
     category: "Data & Ingestion",
     icon: Database,
-    description: "대용량 시계열 데이터 및 데이터 파이프라인",
-    skills: ["PostgreSQL", "MySQL", "Redis", "ClickHouse", "RowBinary", "Streaming JSON"]
+    description: "대용량 시계열 데이터 파이프라인 및 고속 적재",
+    skills: ["ClickHouse", "Redis", "PostgreSQL", "MySQL"]
   },
   {
-    category: "Frontend & Web",
-    icon: Layout,
-    description: "사용자 중심의 직관적인 대시보드 구현",
-    skills: ["React", "Next.js", "React Router", "TypeScript", "Tailwind CSS", "JavaScript"]
+    category: "Systems & Networks",
+    icon: Network,
+    description: "OS 하부 시스템 제어 및 네트워크 통신 제어",
+    skills: ["Linux", "SocketCAN", "TCP/IP", "WebSocket", "DNS/TCP Probe"]
   },
   {
-    category: "Cloud & Edge Infra",
+    category: "Cloud Infrastructure",
     icon: Cloud,
-    description: "가상화 및 오케스트레이션 설계",
-    skills: ["AWS", "GCP", "Azure", "K3s", "Docker", "Docker Compose"]
+    description: "퍼블릭 클라우드 및 하이브리드 가상 인프라 설계",
+    skills: ["AWS", "GCP", "Azure", "NCP"]
   },
   {
-    category: "Monitoring & Tools",
+    category: "Monitoring & CI/CD",
     icon: Activity,
-    description: "서비스 신뢰성 모니터링 및 운영 자동화",
-    skills: ["Docker API", "Healthcheck", "DNS/TCP Probe", "Log Pattern Scan", "Git", "GitHub Actions"]
+    description: "인프라 실시간 관제 및 빌드/배포 자동화",
+    skills: ["Docker API", "Container Healthcheck", "Log Pattern Scan", "Git", "GitHub Actions", "Shell Scripting"]
   }
 ]
 
@@ -101,7 +101,7 @@ export default function TechStack() {
         <h2 className="text-4xl font-extrabold tracking-tight mb-4 md:text-5xl font-heading bg-gradient-to-r from-foreground via-foreground to-purple-400/80 bg-clip-text text-transparent">
           Technical Stack
         </h2>
-        <p className="text-muted-foreground text-lg max-w-3xl leading-relaxed">
+        <p className="text-muted-foreground text-lg max-w-3xl leading-relaxed break-keep">
           AI 서빙, 고성능 백엔드, 실시간 대용량 데이터 적재, 컨테이너 가상화 운영을 위해 활용하는 핵심 기술입니다.
         </p>
       </div>
