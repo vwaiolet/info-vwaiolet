@@ -1,46 +1,131 @@
-### 개요
-대규모 동시 요청 환경에서 대형 AI 모델(LLM, TTS, Vision) 연동 시 발생하는 응답 지연 블로킹과 디스크 I/O 스파이크, 데이터베이스 병목을 해결하기 위해 비동기 오케스트레이션 파이프라인을 구축하고 백엔드 자원 효율성을 극대화한 프로젝트입니다.
+### 아키텍처 다이어그램
 
-### 역할
-- 비동기 백엔드 아키텍처 설계 및 대용량 스트리밍 제어 모듈 개발
-- Vertex AI, AWS Polly, Stability AI 비동기 오케스트레이션 구현
-- 인메모리 인증 캐싱 도입을 통한 디스크 I/O 최적화 및 DB 트랜잭션 무결성 확보
+```mermaid
+flowchart TB
+    %% Styling
+    classDef client fill:#0a2040,stroke:#1565c0,stroke-width:2px,color:#fff;
+    classDef api fill:#0f2c1b,stroke:#2e7d32,stroke-width:2px,color:#fff;
+    classDef gemini fill:#25113d,stroke:#6a1b9a,stroke-width:2px,color:#fff;
+    classDef db fill:#3d2008,stroke:#ef6c00,stroke-width:2px,color:#fff;
+    classDef external fill:#1e1e24,stroke:#37474f,stroke-width:2px,color:#fff;
 
-### Skills
-- Python, FastAPI (ASGI), SQLAlchemy Async, PostgreSQL, Docker
-- GCP Vertex AI, GCS, OAuth 2.0
-- AWS Polly, Stability AI
+    subgraph ClientLayer["클라이언트 계층 (Client Layer)"]
+        Client["웹 클라이언트 (https://aid-english.com)"]:::client
+    end
 
-### 상세 수행 내역
+    subgraph APILayer["FastAPI 백엔드 계층 (FastAPI Backend Layer)"]
+        direction TB
+        MainApp["app.main:app (FastAPI)"]:::api
+        
+        subgraph Routes["API 라우터 (Routes)"]
+            AuthRoute["인증 라우터 (/api/auth)"]:::api
+            TeacherRoute["선생님 라우터 (/api/teacher)"]:::api
+            LearningRoute["AI 학습 라우터 (/api/learning)"]:::api
+            ExamRoute["시험 라우터 (/api/exam)"]:::api
+            OverviewRoute["대시보드 라우터 (/api/overview)"]:::api
+            AudioRoute["오디오 라우터 (/api/audio)"]:::api
+            VisionRoute["비전 라우터 (/api/vision)"]:::api
+        end
+        
+        subgraph CoreUtils["코어 및 유틸리티 (Core & Utils)"]
+            DB_Core["데이터베이스 연결 (app.core.db)"]:::api
+            JWT_Util["인증 및 토큰 (app.utils.jwt)"]:::api
+            GSUpload["GCS 파일 업로드 (app.utils.gs_upload)"]:::api
+        end
+    end
 
-#### 비동기 스트리밍 아키텍처 및 동시성 최적화
-**AS-IS**
-독해, 문법, 작문, 청취 등 멀티모달 서비스 특성상 대량의 유저가 동시에 접속하여 LLM(Vertex AI), TTS(AWS Polly), Vision(Stability AI) 인프라를 복합적으로 호출하는 상황이었음. 동기식 백엔드 아키텍처 모델을 채택할 경우, 외부 API 응답을 대기하는 동안 ASGI 워커 스레드가 고갈되어 후속 유저의 요청이 타임아웃 되는 치명적인 아키텍처 한계가 존재했음. 외부 서비스의 대기 지연이 시스템 전체로 전파되는 블로킹 현상으로 인해 동시 접속자 대상의 안정적인 서비스 제공이 불가능했음.
+    subgraph ExternalServices["외부 연동 서비스 계층 (External Services Layer)"]
+        subgraph GCP["Google Cloud Platform (GCP)"]
+            VertexAI["Vertex AI (Gemini)<br>- 본문 추출 및 분석<br>- 실시간 대화식 AI 수업<br>- 시험 자동 출제 & 채점"]:::gemini
+            GCS_Content["Google Cloud Storage (교재 PDF 버킷)"]:::external
+            GCS_Audio["Google Cloud Storage (학생 음성 버킷)"]:::external
+        end
+        
+        AWSPolly["AWS Polly<br>(Text-to-Speech)"]:::external
+        StabilityAI["Stability AI<br>(Text-to-Image)"]:::external
+    end
 
-**TO-BE**
-FastAPI의 네이티브 ASGI 이벤트 루프와 Vertex AI의 `generate_content_async(stream=True)` 엔진을 연동한 비동기 제네레이터 아키텍처를 전면 도입함. 자체 엔진 컴포넌트를 설계하여 대용량 컨텍스트가 포함된 원문 데이터를 메모리에 일시 적재하지 않고, 수신되는 즉시 `StreamingResponse`를 통해 클라이언트로 청크(Chunk) 단위로 실시간 스트리밍 전송 처리함. 오디오 데이터 파이프라인 엔진과 비전 생성 인프라 호출 시 비동기 I/O 바인딩 패턴을 적용하여, 네트워크 대기 시간 동안 이벤트 루프가 다른 유저의 웹 요청 트래픽을 동시 처리하도록 자원 효율성을 극대화함. 이를 통해 외부 대규모 모델 연동으로 인한 스레드 락 현상을 완벽히 해결하고 다중 유저 트래픽 급증 시 타임아웃 발생률을 제로에 가깝게 통제함.
+    subgraph DatabaseLayer["데이터 영속성 계층 (PostgreSQL Database)"]
+        direction TB
+        subgraph AuthData["사용자 및 인증 정보"]
+            Member["Member (학생/선생님 정보)"]:::db
+            Role["Role / School (역할/학원 정보)"]:::db
+            Session["UserSession / RefreshToken / TokenBlackList"]:::db
+        end
+        
+        subgraph SyllabusData["학습 관리 정보"]
+            Syllabus["Syllabus / SyllabusResource"]:::db
+            Schedule["LearningSchedule / ResourceFile"]:::db
+        end
 
-#### 인메모리 인증 캐싱을 통한 자격증명 오버헤드 최소화
-**AS-IS**
-GCP Vertex AI API 통신 시 서비스 계정 크레덴셜 정보를 매번 디스크에서 파싱하여 OAuth 2.0 액세스 토큰을 발급받는 구조였음. 이로 인해 고트래픽 상황에서 심각한 디스크 I/O 스파이크가 발생하고 구글 인증 서버로의 중복 요청 아웃바운드 트래픽이 발생하여 내부 API 라우팅 레이턴시가 지연되는 병목을 유발함.
+        subgraph LogData["수업 진행 정보"]
+            LearningLog["LearningLog (AI 수업 챗로그)"]:::db
+        end
 
-**TO-BE**
-OAuth 2.0 액세스 토큰 발급 구조에 `@lru_cache` 기반 인메모리 자격 증명 캐싱 메커니즘을 결합함. 유효기간 내의 액세스 토큰을 메모리에 캐싱하여 유지하는 방식을 도입해 인증 오버헤드를 물리적으로 생략하고 구글 인증 서버로의 중복 아웃바운드 트래픽을 차단하여 내부 API 라우팅 레이턴시를 단축함.
+        subgraph ExamData["시험 및 분석 정보"]
+            Test["Test / TestQuestion / TestOption / TestAnswer"]:::db
+            Score["TestScore / TestAnalysis / TestGuideline"]:::db
+        end
+    end
 
-#### 커넥션 풀 고갈 방지 및 데이터베이스 트랜잭션 무결성 확보
-**AS-IS**
-고빈도 세션 및 대량 학습 로그 적재 시 동시성 저하로 인한 커넥션 풀 고갈 병목 현상이 발생하기 쉬웠으며, 트랜잭션 커밋 실패 시 즉각적인 롤백 처리가 미흡하여 데이터 무결성이 훼손될 위험이 존재함.
+    %% Connections
+    Client <== "HTTPS / CORS (JSON)" ==> MainApp
+    
+    MainApp --> Routes
+    
+    %% Route dependencies
+    Routes --> JWT_Util
+    Routes --> DB_Core
+    TeacherRoute --> GSUpload
+    LearningRoute --> GSUpload
+    
+    %% DB connections
+    DB_Core <== "SQLAlchemy ORM" ==> DatabaseLayer
+    
+    %% Service integrations
+    LearningRoute ==> VertexAI
+    TeacherRoute ==> VertexAI
+    ExamRoute ==> VertexAI
+    
+    LearningRoute --> GCS_Audio
+    TeacherRoute --> GCS_Content
+    GSUpload --> GCP
+    
+    AudioRoute ==> AWSPolly
+    VisionRoute ==> StabilityAI
+```
 
-**TO-BE**
-정규화된 데이터베이스 스키마에 인덱스를 전략적으로 배치하고, SQLAlchemy Async 패턴을 명시적으로 도입하여 커밋 실패 시 즉각적인 `db.rollback()` 처리를 관장하는 방어적 컨텍스트 매니지먼트를 내재화함. 이를 통해 커넥션 풀 고갈을 방지하고 애플리케이션 레이어의 성능 저하 없이 고성능 트랜잭션 무결성을 확보함.
+## 주요 구성 요소 설명
 
-### 기술적 의사결정의 근거 및 트레이드 오프
+### 1. 클라이언트 계층
+* `https://aid-english.com` 주소로 배포된 웹 프론트엔드 애플리케이션임 (현재는 폐쇄)
+* 백엔드 API와는 CORS 정책(자격증명 포함) 하에 HTTPS를 통해 통신하며 JSON 포맷의 데이터를 교환함
 
-| 도입 기술 | 선택 및 아키텍처적 근거 | 대용량 트래픽 관점의 이점 |
-| :--- | :--- | :--- |
-| FastAPI (ASGI) | Node.js 및 Go와 대등한 고성능 비동기 이벤트 루프를 Python 환경에서 네이티브로 활용 가능하여 선정 | 스레드 생성 오버헤드 없이 단일 프로세스 내에서 수만개의 동시 I/O 커넥션을 효율적으로 스케줄링 |
-| HttpOnly 듀얼 토큰 & 세션 검증 | 클라이언트 스크립트 탈취(XSS) 방지 및 분산 환경에서의 상태 검증 무결성을 위해 설계 | 유효성 검증 레이어를 경량화하고 중복 로그인 유입 시 데이터베이스 세션 테이블의 단일 인덱스 조회를 통해 즉각적인 트래픽 필터링 가능 |
-| SQLAlchemy Async 패턴 & 연쇄 제약 | 명시적인 관계형 트랜잭션 범위 격리 및 ondelete='CASCADE' 적용 | 학습 세션 파괴 및 대량 데이터 삭제 요청 발생 시, 앱 레이어의 중복 루프 없이 DB 레벨에서 고속 연쇄 삭감 처리를 수행하여 동시성 저하 방지 |
+### 2. FastAPI 백엔드 계층
+* **API Routers**: 기능별 엔드포인트를 제공함
+  * `auth`: 회원가입, 로그인, 토큰 갱신, 로그아웃 등 세션 관리
+  * `teacher`: 선생님 대시보드 데이터 조회, 학생 및 학습 계획 관리, 학원 관리 등
+  * `learning`: AI와 함께하는 실시간 영어 수업(문법, 작문, 리딩, 스피킹) 진행 및 학습 로그 기록
+  * `exam`: 학습 내용 기반 단어/리딩/작문 시험 생성 및 학생 답안 자동 채점 & 평가
+  * `audio`: 텍스트 기반 TTS 음성 합성 및 오디오 스트림 반환
+  * `vision`: 단어 연상 그림 및 교재 리소스 일러스트 생성 지원
+* **Core & Utils**: 데이터베이스 커넥션 풀(SQLAlchemy) 관리, JWT 토큰 인코딩/디코딩, Google Cloud Storage 파일 업로드 유틸리티 등을 수행함
 
-### 회고
-비동기 백엔드 아키텍처를 도입하고 대형 AI 모델의 오케스트레이션 파이프라인을 최적화하면서, 비동기 프로그래밍이 제공하는 고성능의 이면에는 리소스 누수와 동시성 제어의 복잡성이 수반된다는 점을 깊이 이해하게 되었습니다. 특히 외부 API와의 비동기 스트리밍 연동 시 발생할 수 있는 스레드 락 및 예외 상황에 대한 방어적 설계의 중요성을 깨달았습니다. 성능 지표 개선뿐만 아니라 데이터 무결성과 예외 처리를 꼼꼼히 설계하여 상용 환경에서의 시스템 안정성을 성공적으로 입증한 유의미한 경험이었습니다.
+### 3. 외부 연동 서비스 계층
+* **Google Vertex AI (Gemini)**: 
+  * 학습 일정에 필요한 PDF 교재 내용 추출
+  * 문법, 쓰기, 말하기, 읽기 등 실시간 인터랙티브 수업 생성 및 스트리밍 지원
+  * AI 기반 단어/읽기/쓰기 시험 생성 및 자동 채점
+  * 시험 결과 요약 및 학습 추천 가이드라인 생성
+* **Google Cloud Storage (GCS)**:
+  * 교재 PDF 및 수업 첨부파일 저장용 버킷
+  * 학생이 제출한 음성 녹음 파일 저장용 버킷
+* **AWS Polly**: TTS(Text-to-Speech)를 활용하여 자연스러운 원어민 음성을 실시간 오디오 스트림 파일로 생성 및 배포
+* **Stability AI**: 텍스트 프롬프트를 바탕으로 고품질 교육용 이미지를 자동 생성하여 화면에 노출
+
+### 4. 데이터 영속성 계층 (PostgreSQL Database)
+* **SQLAlchemy ORM**을 통해 모든 데이터를 관계형으로 저장하고 쿼리함
+* **회원 및 세션**: 학원 및 역할 정보, 로그인 상태 유지를 위한 사용자 세션 및 리프레시 토큰, 로그아웃된 토큰 블랙리스트를 관리함
+* **학습 계획 및 일정**: 교재별 실습 코스가 정의된 Syllabus, 세부 학습 날짜와 본문이 포함된 LearningSchedule을 관리함
+* **수업 진행 정보**: 실시간 AI 튜터와 주고받은 메시지 로그를 누적 기록하여 문법/쓰기/읽기/말하기별 흐름을 유지함
+* **시험 및 평가**: 스케줄에 따른 시험 생성 정보(문제, 보기, 학생 제출 답안)와 점수, 분석 레포트, 맞춤 가이드라인을 저장함

@@ -1,46 +1,122 @@
-### 개요
-바이낸스 거래소의 체결 데이터를 실시간 스트리밍으로 수집·파싱하고, 청크 단위로 중복을 제거한 뒤 RowBinary 직렬화를 통해 ClickHouse 대용량 분산 데이터베이스에 고속 적재하는 인제스천(Ingestion) 서버 개발 프로젝트입니다.
+### 시스템 컴포넌트 아키텍처
 
-### 역할
-- 1인 단독 프로젝트로서 아키텍처 설계, 구현, 배포, 모니터링 전체 프로세스 주도
-- System.Text.Json 기반의 대용량 JSON 스트리밍 파싱 파이프라인 설계
-- ClickHouse RowBinary 통신 모듈 작성 및 Native AOT 기반의 초경량 컨테이너 배포 환경 구축
+```mermaid
+graph TD
+    classDef client fill:#0c2340,stroke:#0ea5e9,stroke-width:2px,color:#fff;
+    classDef server fill:#1f133c,stroke:#8b5cf6,stroke-width:2px,color:#fff;
+    classDef db fill:#0f2c1b,stroke:#10b981,stroke-width:2px,color:#fff;
 
-### Skills
-- C# / .NET 10, ASP.NET Core Minimal API, Native AOT
-- ClickHouse, ReplacingMergeTree, RowBinary Protocol
-- Docker, Kestrel, System.IO.Pipelines
+    %% Client Layer
+    subgraph ClientLayer ["Client / Data Source"]
+        Client["Archive Data Sender<br/>(HTTP POST /api/v1/archive)"]:::client
+    end
 
-### 상세 수행 내역
+    %% Application Server Layer
+    subgraph ServerLayer ["Binance Archive Server (ASP.NET Core / Native AOT)"]
+        Kestrel["Kestrel Web Server<br/>(Body Size Limit: MAX_BODY_BYTES)"]:::server
+        Auth["ApiKeyAuthenticator<br/>(Header: x-api-key / Authorization)"]:::server
+        IngestService["[Service] ArchiveIngestService<br/>(Ingestion Orchestrator)"]:::server
+        Parser["[Parser] TradePayloadParser<br/>(PipeReader + Utf8JsonReader)"]:::server
+        CHClient["[Client] ClickHouseIngestClient<br/>(HttpClient & Deduplication)"]:::server
+        RowBinaryContent["[Formatter] RowBinaryTradeContent<br/>(Custom HttpContent)"]:::server
+    end
 
-#### 대용량 JSON 스트리밍 파싱 파이프라인 구축
-**AS-IS**
-바이낸스 아카이브 데이터 수집 시 요청 한 번에 최대 50만 건의 체결 행(Trade Row, 약 256MB 대용량 JSON)이 인입되었음. 동기식 파싱이나 일반적인 JSON 역직렬화 방식 채택 시 전체 payload가 힙(Heap) 메모리에 올라가 가비지 컬렉터(GC) 부하가 폭증하고 OOM(Out of Memory)으로 인해 서버가 크래시되는 위협이 있었음.
+    %% Database Layer
+    subgraph DBLayer ["Database"]
+        ClickHouse["ClickHouse DBMS<br/>(HTTP Endpoint: 8123)"]:::db
+        Table["Table: binance_spot_trades<br/>(ReplacingMergeTree Engine)"]:::db
+    end
 
-**TO-BE**
-`System.IO.Pipelines`와 `System.Text.Json`의 `Utf8JsonReader`를 결합하여 비동기 JSON 스트리밍 파싱을 도입함. 메모리에 전체 payload를 로드하지 않고 청크 단위(50,000 rows)로 읽어 힙 할당을 최소화함. 메모리 사용량을 `CHUNK_ROWS * sizeof(TradeRow)` + `PipeReader` 버퍼 수준으로 제한하여 50만 건 이상의 대형 요청 인입 시에도 가비지 컬렉터 부하를 최소화하고 안정적인 처리가 가능하게 개선함.
+    %% Connections
+    Client -- "1. POST JSON Payload (Streaming)" --> Kestrel
+    Kestrel -- "2. Check Key" --> Auth
+    Kestrel -- "3. Read Request Body Reader" --> IngestService
+    IngestService -- "4. Advance & Parse Bytes" --> Parser
+    Parser -.-> |"Extract Row & Add to Buffer"| IngestService
+    
+    IngestService -- "5. Flush Chunk (CHUNK_ROWS)" --> CHClient
+    
+    CHClient -- "6. Check Existing IDs (Optional)<br/>(EXISTING_ID_LOOKUP_ROWS)" --> ClickHouse
+    ClickHouse -- "7. Return duplicate trade_ids" --> CHClient
+    
+    CHClient -- "8. Filter & Pass Remaining Rows" --> RowBinaryContent
+    CHClient -- "9. POST Ingest Payload (FORMAT RowBinary)" --> ClickHouse
+    ClickHouse --> Table
+```
 
-#### RowBinary 직렬화와 중복 제거를 통한 ClickHouse 고속 적재
-**AS-IS**
-일반적인 HTTP JSON 쿼리 인서트 방식을 사용하면 역직렬화 및 문자열 직렬화의 이중 인코딩 오버헤드가 발생하여 DB 적재 성능(초당 처리량)이 심각하게 저하되었음. 또한 대량 수집 시 발생할 수 있는 네트워크 유실 등으로 인해 유입되는 중복 데이터를 필터링해야 했음.
+### 데이터 수집 흐름 시퀀스 다이어그램
 
-**TO-BE**
-ClickHouse의 네이티브 `RowBinary` 직렬화 포맷을 도입하여 바이너리 데이터를 네트워크 소켓으로 직접 전송, 직렬화 오버헤드를 원천적으로 제거함. 중복 데이터 방지를 위해 ClickHouse의 `ReplacingMergeTree` 엔진을 채택하는 동시에, 애플리케이션 레벨에서 `EXISTING_ID_LOOKUP_ROWS=20,000` 단위의 인메모리 슬라이딩 윈도우 캐싱 기반 중복 체크 로직을 결합하여 이중 정합성을 보장하면서 최대 초당 120만 건(1.2M msgs/s)의 초고속 적재 속도를 달성함.
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client / Sender
+    participant Kestrel as Kestrel Web Server
+    participant Auth as ApiKeyAuthenticator
+    participant Ingest as ArchiveIngestService
+    participant Parser as TradePayloadParser
+    participant CHClient as ClickHouseIngestClient
+    participant CH as ClickHouse DB
 
-#### 초고성능 Kestrel 튜닝 및 Native AOT 배포
-**AS-IS**
-분산 노드 및 제한된 환경의 엣지 컨테이너 환경에서 .NET Core 런타임의 JIT 컴파일러 실행 오버헤드와 가상 메모리(CLR) 점유율로 인해 리소스가 낭비되고 초기 구동 지연(Cold Start) 및 추가 라이브러리 의존성 문제가 존재함.
+    Client->>Kestrel: POST /api/v1/archive (Big JSON Stream)
+    activate Kestrel
+    Kestrel->>Auth: IsAuthorized(Headers)
+    Note over Auth: Header check (x-api-key or Bearer)
+    Auth-->>Kestrel: HTTP 200 OK / 401 Unauthorized
 
-**TO-BE**
-`Kestrel` 웹 서버 수준에서 요청 본문 최대 크기를 256MB로 정밀 제어하고, 빌드 타임에 네이티브 바이너리로 컴파일되는 `Native AOT` 옵션을 적용해 퍼블리싱함. JIT 실행 오버헤드를 제거하고 런타임 의존성을 최소화했으며, `runtime-deps` 초경량 베이스 컨테이너 이미지를 기반으로 배포 이미지를 단 10MB 안팎으로 경량화하여 컨테이너 스케일 아웃 및 구동 속도를 혁신적으로 가속화함.
+    Kestrel->>Ingest: StreamJsonRequestAsync(BodyReader)
+    activate Ingest
 
-### 기술적 의사결정의 근거 및 트레이드 오프
+    loop Read HTTP Body Stream (Chunk by Chunk)
+        Ingest->>Kestrel: ReadAsync() from PipeReader
+        Kestrel-->>Ingest: Buffer bytes
+        Ingest->>Parser: Parse(Buffer, JsonReaderState)
+        Note over Parser: Utf8JsonReader sequential parsing<br/>(No full DOM deserialization)
+        Parser-->>Ingest: ParseResult (Buffered rows, bytesConsumed)
+        Ingest->>Kestrel: AdvanceTo(ConsumedPosition)
 
-| 도입 기술 | 선택 및 아키텍처적 근거 | 대용량 적재 관점의 이점 |
-| :--- | :--- | :--- |
-| ASP.NET Core Native AOT | 고성능 파이프라인 제어(`System.IO.Pipelines`)가 용이하고, JIT 컴파일러 및 런타임 오버헤드가 없는 완전 컴파일 기계어 결과물 생성을 위해 선택 | 컨테이너 메모리 점유율을 수십 MB 수준으로 낮추고 인스턴스 기동 시간을 수 밀리초 단위로 단축하여 즉각적인 트래픽 대응 가능 |
-| ClickHouse (RowBinary) | 대규모 시계열 정렬 및 열 지향 분석에 특화되어 있고, HTTP 오버헤드 없이 고속 스트리밍 쓰기를 지원하는 네이티브 바이너리 프로토콜 활용을 위해 채택 | 대량 삽입 시 발생하는 직렬화/역직렬화에 필요한 CPU 연산량을 극적으로 감소시켜 가용 대역폭 전체를 인제스천에 집중시킴 |
-| ReplacingMergeTree 엔진 | 중복 데이터가 빈번한 스트리밍 환경에서 백그라운드 머지를 통해 최종 일관성을 보장하기 위해 설계 | 앱 레벨의 전수 DB 중복 쿼리 오버헤드를 회피하고 백그라운드 배치 비동기 중복 삭제 처리를 수행하여 동시성 저하 방지 |
+        alt ShouldFlush (Buffered Rows >= CHUNK_ROWS)
+            Ingest->>CHClient: InsertTradesAsync(symbol, BufferedRows)
+            activate CHClient
+            
+            opt CHECK_EXISTING_IDS == true
+                CHClient->>CH: SELECT trade_id WHERE trade_id IN (batch)
+                CH-->>CHClient: List of existing trade_ids
+                Note over CHClient: Filter out duplicate trade_ids
+            end
 
-### 회고
-대용량 데이터 수집 시스템에서 하드웨어 리소스를 한계까지 쥐어짜기 위해 메모리 할당(Allocations)과 GC 오버헤드를 관리하는 것이 얼마나 치명적인지 깨달은 프로젝트였습니다. .NET의 `System.IO.Pipelines`와 ClickHouse의 RowBinary 프로토콜을 구현하면서 물리 계층에 가까운 직렬화 및 스트림 처리가 고속 데이터 인프라의 핵심 동력임을 체득했습니다. 또한 Native AOT를 실무 환경에 적용하기 위해 리플렉션(Reflection) 제약을 우회하고 트리밍 호환 컴파일을 완수해내며, 최신 컴파일 사상과 초경량 마이크로서비스 설계 역량을 한 단계 높일 수 있었습니다.
+            CHClient->>CHClient: Prepare RowBinaryTradeContent
+            CHClient->>CH: POST /?query=INSERT... FORMAT RowBinary
+            CH-->>CHClient: HTTP 200 OK
+            CHClient-->>Ingest: Inserted count
+            deactivate CHClient
+            Ingest->>Parser: ClearBufferedRows()
+        end
+    end
+
+    Note over Ingest: Processing EOF (End Of File)
+    
+    rect rgb(240, 240, 240)
+        Note over Ingest: Remaining Buffered Rows Flush
+        Ingest->>CHClient: InsertTradesAsync(symbol, RemainingRows)
+        CHClient->>CH: POST (FORMAT RowBinary)
+        CH-->>CHClient: HTTP 200 OK
+    end
+
+    Ingest-->>Kestrel: IngestResult (Total, Inserted, Skipped, Chunks)
+    deactivate Ingest
+    Kestrel-->>Client: Response Text Summary
+    deactivate Kestrel
+```
+
+### 핵심 아키텍처 디자인 특징
+
+1. 스트리밍 JSON 파서:
+    - 큰 용량의 JSON 페이로드 전체를 한 번에 메모리 객체 그래프(`List<T>`)로 로드하지 않음
+    - `PipeReader`와 `Utf8JsonReader`를 조합하여 네트워크 버퍼에 들어오는 대로 순차 파싱을 처리하므로, 가비지 컬렉터 부하와 메모리 풋프린트를 극도로 억제함
+2. 이중 중복 제거:
+    - 애플리케이션 단 필터링: `CHECK_EXISTING_IDS=true`인 경우 ClickHouse에 쿼리를 날려 이미 존재하는 `trade_id`를 걸러내고 새 데이터만 인서트 함
+    - 데이터베이스 단 병합: ClickHouse 테이블 엔진으로 `ReplacingMergeTree(symbol, trade_id)`를 채택하여, 백그라운드 머지 시점에 자동 중복 제거가 이루어지도록 설계 되어 있음
+3. 고속 바이너리 인서트:
+    - ClickHouse 전송 시 텍스트 기반 SQL이나 JSON 포맷을 사용하지 않고, CPU/네트워크 대역폭 효율이 극대화된 ClickHouse 네이티브 `RowBinary` 포맷으로 직접 인코딩하여 전송함
+4. 네이티브 AOT:
+    - `CreateSlimBuilder` 기반으로 빌드되어 .NET 런타임 없이 단독 실행 가능한 Native AOT 컨테이너 빌드를 완벽히 지원하며, 컨테이너 부팅 시간 단축과 메모리 사용량 최소화를 실현함

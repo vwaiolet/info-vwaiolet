@@ -1,48 +1,114 @@
-### 개요
-K3s 클러스터 기반 호스트 네트워크 환경에서 동작하는 차세대 커넥티드 카 데이터 실시간 수집 및 AI 이상 징후 탐지 플랫폼입니다. 인프라 리소스가 제한적인 차량용 엣지 컴퓨팅 장비 환경에서 실시간 초고속 CAN 프레임을 무손실 수집·필터링하고, 경량 AI 추론 모델과 소형 언어 모델(USAD + SLM)을 결합하여 차량 보안 및 물리 법칙 기반 이상 정밀 검증을 구현했습니다.
+### 아키텍처 다이어그램
 
-### 역할
-- E2E 마이크로서비스 파이프라인 설계 및 유기적 서비스 통합 주도
-- Rust 기반 SocketCAN 초고속 로우 데이터 스트리머 및 Anomaly Watcher 개발
-- ONNX + SLM 하이브리드 2단계 이상 탐지 아키텍처 설계 및 에이전트 내결함성/복원력 튜닝
+```mermaid
+flowchart TD
+    %% Styling
+    classDef rust fill:#3c1f08,stroke:#ea580c,stroke-width:2px,color:#fff;
+    classDef python fill:#0a2040,stroke:#2563eb,stroke-width:2px,color:#fff;
+    classDef node fill:#072b1b,stroke:#059669,stroke-width:2px,color:#fff;
+    classDef redis fill:#3b1111,stroke:#dc2626,stroke-width:2px,color:#fff;
+    classDef hardware fill:#1e1e24,stroke:#52525b,stroke-width:2px,color:#fff;
+    classDef external fill:#25113d,stroke:#9333ea,stroke-width:2px,color:#fff;
 
-### Skills
-- Rust, Python, K3s, Redis, SocketCAN, WebSocket
-- ONNX Runtime, Ollama (Gemma), vsomeip, Uptane/TUF Security Standard
+    subgraph Hardware_Layer["🚗 차량 및 로컬 네트워크 계층 (Vehicle & CAN Layer)"]
+        remote_can["원격 CAN 버스 (Remote CAN via socketcand)"]
+        can_bridge["can_bridge (Python socketcand Bridge)"]:::python
+        vcan["가상 CAN 인터페이스 (vcan1 / can0)"]
+        ecu_uno["UNO_01 (Arduino UNO 제어기)"]:::hardware
+    end
 
-### 상세 수행 내역
+    subgraph Ingress_Core_Layer["⚙️ 코어 수집 및 상태 관리 계층 (Ingress & Core Layer)"]
+        can_streamer["can_raw_streamer<br>(Rust / SocketCAN)"]:::rust
+        ecu_info["ecu_info<br>(Rust Axum API)"]:::rust
+    end
 
-#### 가변 이벤트 전파 패턴 설계를 통한 대역폭 및 리소스 최적화
-**AS-IS**
-차량 내부의 고밀도 대규모 시계열 CAN 데이터 수집 시, 모든 정상 데이터를 상위 클라우드 서버로 상시 전송하는 전형적인 구조여서 심각한 네트워크 대역폭 과부하와 무의미한 클라우드 컴퓨팅·스토리지 비용 폭증을 유발하는 한계가 존재했음.
+    subgraph Redis_Broker["📦 Redis 메시지 브로커 (K3s Redis Cluster)"]
+        r_stream["Stream: can/stream / vcan1/stream"]:::redis
+        r_heartbeat["Key: uno:firmware_version (TTL 3s)"]:::redis
+        r_context["Pub/Sub: anomaly_context"]:::redis
+        r_uds["Pub/Sub: uds_messages"]:::redis
+        r_verified["Pub/Sub: verified_anomalies"]:::redis
+        r_ota["Pub/Sub: ota_status_channel"]:::redis
+        r_someip["Pub/Sub: someip_monitoring"]:::redis
+    end
 
-**TO-BE**
-가변 주파수 이벤트 전파 패턴을 설계 및 적용함. 정상 상태의 안전 데이터는 1분 주기로 요약 보고하는 하트비트 스트리밍 메커니즘을 구축한 반면, 오류 및 경고 조건 감지 시에는 지연 제어 없이 수집 계층에서 Redis와 AI 계층을 거쳐 즉시 무지연 알림이 발행되도록 이벤트 지향 파이프라인 라우팅을 구현함. 초당 수천 개의 CAN 프레임을 강제로 주입하는 스트레스 환경에서도 메모리 고갈이나 시스템 크래시 없이 트래픽이 안정적으로 제어됨을 입증함.
+    subgraph AI_Pipeline["🧠 멀티 스테이지 AI 파이프라인 (AI Inference Pipeline)"]
+        ai_watcher["ai_watcher<br>(Python/Rust tract-onnx USAD)"]:::python
+        anomaly_verifier["anomaly_verifier<br>(Python Ollama 검증기)"]:::python
+        ollama_server["Ollama Service<br>(gpt-oss:20b / gemma3)"]:::external
+        dataset_store[("/data/ai_watcher.jsonl<br>(FT 데이터셋 축적)")]:::hardware
+    end
 
-#### ONNX 및 SLM 결합 하이브리드 2단계 이상 탐지 아키텍처 구축
-**AS-IS**
-시계열 기반의 단순 머신러닝 이상 탐지는 차량의 급격한 조향이나 코너링 등 정상적인 주행 환경 변화에서도 빈번하게 오탐을 유발하였고, 이로 인한 비정상 오탐 제어 명령 하달은 차량 보안 및 실제 탑승자의 안전에 치명적인 위험을 초래했음.
+    subgraph Control_SOMEIP["💬 자연어 및 SOME/IP 제어 계층"]
+        someip_client["SOME/IP Client<br>(자연어 명령어 송신)"]:::external
+        someip_service["someip_service<br>(Python vsomeip)"]:::python
+        ollama_someip["Ollama Service<br>(granite4:350m Warmed)"]:::external
+    end
 
-**TO-BE**
-Rust 계층에 ONNX를 결합하여 VSS 규격으로 초고속 디코딩된 데이터 흐름을 USAD 모델에 상시 주입하는 1차 경량 가속 엔진을 배치함. 1차 이상 감지 즉시 20프레임 윈도우의 타임라인 컨텍스트를 스냅샷으로 추출하고, SLM(소형 언어 모델)을 활용해 물리 법칙 페르소나 기반 심층 2차 검증을 동적으로 구동하는 이중 계층 하이브리드 검증 구조를 구현해 오탐률을 80% 이상 혁신적으로 감소시켰음.
+    subgraph OTA_Layer["🔒 보안 업데이트 계층 (OTA Layer)"]
+        ota_client["ota_client<br>(FastAPI / Uptane TUF)"]:::python
+        arduino_cli["Arduino CLI<br>(펌웨어 플래싱)"]:::hardware
+    end
 
-#### 시스템 고내결함성 및 아키텍처 복원력 설계
-**AS-IS**
-K3s 환경에서 실행되는 분산 컨테이너 특성상 가상 브로커(Redis) Pod의 강제 축출/재시작이나 추론 서브시스템의 일시적 연산 병목 및 타임아웃 발생 시, 데이터 수집 파이프라인 전체가 연쇄 크래시되는 약점이 존재했음.
+    subgraph Visual_Layer["📊 시각화 및 전송 계층 (Visual & Presentation Layer)"]
+        event_sender["event_sender<br>(Rust Axum / WebSocket)"]:::rust
+        cockpit_sim["cockpit_simulator<br>(Nuxt 3 / Nitro)"]:::node
+        someip_vis["someip_visualizer<br>(Nuxt 3 / Nitro)"]:::node
+    end
 
-**TO-BE**
-Rust Core 수집기 내부 레디스 클라이언트 모듈에 비동기 재연결 가용성 패턴을 내재화하여 브로커 단절을 즉시 감지하고 백오프(Backoff) 기반 재연결을 시도하도록 설계함. 또한 SLM 검증 계층에 명시적 인퍼런스 예외 및 타임아웃 예외 처리를 적용하여 SLM 지연 시 시스템 전체가 블로킹되지 않고 안전하게 최신 상태를 정상으로 우선 폴백(Fallback) 처리하는 복원력 로직을 탑재함. Pod 강제 삭제 및 비정상 모델 주입 테스트 시에도 시스템 정지 없이 100% 복구됨을 검증함.
+    subgraph External_Monitoring["🌐 외부 관제 및 클라이언트"]
+        web_browser["사용자 웹 브라우저<br>(Dashboard UI)"]:::external
+        remote_server["원격 관제 서버<br>(REMOTE_SERVER_URL)"]:::external
+    end
 
-### 핵심 기술적 의사결정 및 아키텍처 설계 근거
+    %% Flow Connections
+    %% can_bridge & CAN Bus
+    remote_can <-->|socketcand| can_bridge
+    can_bridge <-->|vcan1 / can0| vcan
+    ecu_uno <-->|"0x300 Heartbeat / Tx-Rx"| vcan
 
-| 마이크로서비스 명 | 기술 스택 및 프레임워크 | 선정 사유 및 아키텍처적 역할 |
-| :--- | :--- | :--- |
-| can_raw_streamer | Rust, SocketCAN | 플랫폼의 진입점. 초고속 CAN 로우 이벤트를 무손실 필터링 후 Redis Stream에 초고속 발행하는 저지연 아키텍처 구축. GC가 없는 Rust를 채택해 가비지 컬렉션으로 인한 예측 불가능한 지연을 차단 |
-| ai_watcher | Rust, ONNX, VSS | CAN 시계열 패턴을 고속 디코딩하고 경량화된 USAD 모델에 주입하여 실시간 1차 이상 점수 탐지 가속화 |
-| anomaly_verifier | Python, Ollama, Gemma | 1차 이상 발생 시 20프레임의 컨텍스트를 추출, 물리 법칙 페르소나 기반 SLM 정밀 검증을 수행하여 오탐률을 최소화하는 2차 검증 엔진. AI 모델 유연성을 위해 Python을 사용하되 타입 힌트를 전면 적용 |
-| someip_service | Python, vsomeip, Ollama | 자연어 명령어를 고성능 차량 제어 SOME/IP 패킷 및 CAN 프레임으로 가변 변환해 전송하는 오토모티브 브릿지 인터페이스 |
-| event_sender | Rust, WebSocket | Redis Stream을 지속 구독하고 외부 대시보드 클라이언트에 지연 없이 초고속 가용 WebSocket 브로드캐스팅 수행 |
-| ota_client | Python, Uptane/TUF 표준 | 보안 무결성이 검증된 가상 펌웨어 업데이트 패키지를 스케줄링하고 물리 칩 플래싱을 수행하는 코어 유틸리티 |
+    %% streamer Ingress
+    vcan -->|Raw CAN Frames| can_streamer
+    can_streamer -->|JSON CanPayload| r_stream
+    can_streamer -->|"ECU Info Write (TTL 3s)"| r_heartbeat
 
-### 회고
-임베디드 및 차량용 엣지 컴퓨팅 환경이라는 제한된 하드웨어 리소스에서 성능과 신뢰성 사이의 트레이드오프를 극복하는 과정에서 시스템 소프트웨어 아키텍처의 중요성을 깊이 느낀 프로젝트였습니다. 가비지 컬렉션이 없는 Rust의 안전성과 저지연 처리를 바탕으로 코어 단을 단단히 다지고, 경량 추론과 SLM을 결합해 AI의 정성적인 가치까지 E2E로 전달하면서 엔지니어링 완성도를 높일 수 있었습니다. K3s 상에서 예기치 못한 분산 장애가 발생하더라도 자가 복원력과 폴백 체계를 탑재함으로써 실 서비스 수준의 견고한 모니터링 시스템을 설계하고 배포한 소중한 경험이었습니다.
+    %% ecu_info
+    r_heartbeat -->|Heartbeat Read| ecu_info
+    ecu_info -.->|GET /ecu/device-info| web_browser
+
+    %% AI Pipeline Flow
+    r_stream -->|Subscribe Stream| ai_watcher
+    ai_watcher -->|"1차 탐지: Anomaly Score (Pub)"| r_uds
+    ai_watcher -->|"Context Frame (T0 ~ T-10) Pub"| r_context
+    r_context -->|Subscribe Context| anomaly_verifier
+    anomaly_verifier <-->|Prompt / JSON Verify| ollama_server
+    anomaly_verifier -->|Prompt/Response 기록| dataset_store
+    anomaly_verifier -->|2차 검증 결과 Pub| r_verified
+    anomaly_verifier -->|"HTTP POST (ERROR / WARNING)"| remote_server
+
+    %% Control SOME/IP
+    someip_client -->|"NL Command (0x001)"| someip_service
+    someip_service <-->|NL Intent Parsing| ollama_someip
+    someip_service -->|CAN Tx Control| vcan
+    vcan -.->|CAN Rx Response| someip_service
+    someip_service -->|SOME/IP Logging| r_someip
+
+    %% OTA Flow
+    web_browser -->|POST /ota/trigger-update| ota_client
+    ota_client -->|Uptane TUF 검증 & Flash| arduino_cli
+    arduino_cli -->|Serial / UDS Flash| ecu_uno
+    ota_client -->|Progress Status Pub| r_ota
+
+    %% Event Sender & Visual
+    r_verified -->|Subscribe verified_anomalies| event_sender
+    r_ota -->|Subscribe ota_status_channel| event_sender
+    event_sender -->|"WebSocket Broadcast (Port 9999)"| cockpit_sim
+    r_stream -->|Direct Redis Subscription| cockpit_sim
+    cockpit_sim -->|Socket.io + Client Decoding| web_browser
+    
+    r_someip -->|Subscribe someip_monitoring| someip_vis
+    someip_vis -->|Socket.io Log Stream| web_browser
+
+    %% Subgraph Styling
+    style Redis_Broker fill:#3b1111,stroke:#dc2626,stroke-width:2px;
+```

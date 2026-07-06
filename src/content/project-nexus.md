@@ -1,46 +1,130 @@
-### 개요
-Docker Compose 환경에서 동일 네트워크 내 컨테이너들의 상태, 헬스체크, DNS/TCP 연결성, 그리고 애플리케이션의 인증 실패 로그 패턴을 주기적으로 실시간 감시하는 .NET 10 기반의 무의존성 초경량 모니터링 데몬 프로젝트입니다.
+### 컴포넌트 아키텍처 다이어그램
 
-### 역할
-- 1인 단독 개발자로서 설계, 구현, 튜닝, 배포 전 과정 수행
-- Docker Engine API 직접 연동 및 Unix Domain Socket/Named Pipe 통신 레이어 개발
-- 외부 종속성을 완전히 제거한 순수 .NET 기반의 자동 컨테이너 감지 엔진 설계
+```mermaid
+graph TB
+    %% Styling
+    classDef daemon fill:#0c2340,stroke:#0ea5e9,stroke-width:2px,color:#fff;
+    classDef docker fill:#2d1a15,stroke:#a1887f,stroke-width:2px,color:#fff;
+    classDef client fill:#0f2c1b,stroke:#10b981,stroke-width:2px,color:#fff;
+    classDef network fill:#2d2611,stroke:#eab308,stroke-width:2px,color:#fff;
 
-### Skills
-- C# / .NET 10, ASP.NET Core Minimal API, Native AOT
-- Docker Engine API, Unix Domain Socket (UDS), SocketsHttpHandler
-- HTML5, Vanilla CSS, JavaScript (내장 웹 대시보드)
+    %% Nodes
+    subgraph UserSpace["사용자 영역 (User Space)"]
+        Browser["웹 브라우저 (Web Browser)"]:::client
+        Terminal["터미널 / 로그 수집기 (Console/Log Collector)"]:::client
+    end
 
-### 상세 수행 내역
+    subgraph Nexus["Project Nexus Daemon (Container / Host Systemd)"]
+        Program["Program (Entrypoint)"]:::daemon
+        WebServer["Dashboard Web Server (Kestrel)"]:::daemon
+        LogBuffer["Log Buffer"]:::daemon
+        DashboardState["Dashboard State"]:::daemon
+        
+        subgraph Core["Monitoring Engine"]
+            Monitor["Container Monitor"]:::daemon
+            Provider["Docker Status Provider"]:::daemon
+            Scanner["Docker Log Scanner"]:::daemon
+            Probe["Docker Network Probe"]:::daemon
+            Publisher["Console Event Publisher"]:::daemon
+        end
+    end
 
-#### 의존성 Zero의 초경량 컨테이너 감시 데몬 설계
-**AS-IS**
-Prometheus, Grafana, ELK Stack과 같은 전통적인 모니터링 아키텍처는 도입 장벽이 높고 리소스 비용이 커 소규모/경량 배포 환경에 적합하지 않았으며, 에이전트 설치 및 무거운 프레임워크 사용으로 인해 CPU와 메모리 풋프린트 점유율이 과도하게 소모되는 구조적 한계가 존재했음.
+    subgraph DockerHost["Docker 호스트 환경 (Docker Host Environment)"]
+        Socket["Docker Socket (/var/run/docker.sock)"]:::docker
+        Daemon["Docker Daemon (Docker Engine)"]:::docker
+        
+        subgraph TargetNet["감시 대상 Docker 네트워크 (Target Docker Network)"]
+            App1["Application Container A"]:::network
+            App2["Application Container B"]:::network
+            ProbeContainer["Probe Container (Busybox)"]:::network
+        end
+    end
 
-**TO-BE**
-외부 도커 SDK 라이브러리나 웹서버 서빙용 타사 모듈을 일절 사용하지 않고, 순수 .NET 기본 API만으로 구성된 시스템을 완성함. 호스트 환경에 별도 에이전트 설치 없이 Docker 네트워크에 컨테이너로 실행하기만 하면 UDS 통신을 통해 자동 감지하며, 10개 이상의 다중 컨테이너 실시간 감시 시에도 CPU 점유율 1% 미만, 메모리 사용량 30MB 안팎을 기록하는 극도의 경량화를 실현함.
+    %% Connections
+    Browser -->|HTTP: Dashboard / API| WebServer
+    Terminal -->|Read stdout/stderr| Program
+    Program -->|Configures & Starts| WebServer
+    Program -->|Configures & Starts| Monitor
+    
+    %% Output bindings
+    LogBuffer -.-> WebServer
+    DashboardState -.-> WebServer
+    Monitor -->|Updates| DashboardState
+    Monitor -->|Writes logs| Program
+    Publisher -->|Publishes events| LogBuffer
+    
+    %% Monitoring dependencies
+    Monitor --> Provider
+    Monitor --> Scanner
+    Monitor --> Probe
+    Monitor --> Publisher
+    
+    Provider -->|Docker Engine API| Socket
+    Scanner -->|Docker Engine API| Socket
+    Probe -->|Docker Engine API / Deploy Temp Container| Socket
+    Socket --> Daemon
+    
+    Daemon -->|Inspect / Healthcheck| TargetNet
+    ProbeContainer -->|DNS / TCP Probes| App1
+    ProbeContainer -->|DNS / TCP Probes| App2
+    Daemon -.->|Spawns temp probe| ProbeContainer
+```
 
-#### Docker Socket 기반 네트워크 자동 탐지 및 헬스체크
-**AS-IS**
-신규 컨테이너가 생성되거나 기존 컨테이너가 교체될 때 모니터링 대상을 정적으로 설정/매핑해야 해서 설정 누락 및 리소스 변경에 수동 대응해야 하는 비효율성이 존재했음.
+### 모니터링 주기 시퀀스 다이어그램
 
-**TO-BE**
-`SocketsHttpHandler`를 이용해 Unix Domain Socket 또는 Named Pipe에 밀착 결합하는 인터페이스를 작성하고, Docker Engine API를 주기적(1초 단위)으로 구독하는 쿼리 엔진을 구현함. 컨테이너가 부팅 또는 파괴될 때 이를 실시간으로 이벤트 단위 자동 탐색하며, 격리망 내부 컨테이너의 DNS/TCP 연결성을 실시간 프로빙(Probing)해 연결 실패나 헬스체크 에러를 가용 시간 지연 없이 즉각 감지함.
+```mermaid
+sequenceDiagram
+    autonumber
+    participant CM as Container Monitor
+    participant SP as Status Provider
+    participant LS as Log Scanner
+    participant NP as Network Probe
+    participant EP as Event Publisher
+    participant DS as Dashboard State
+    participant DH as Docker Daemon
 
-#### 인증 실패 로그 패턴 감지 및 실시간 알림 엔진
-**AS-IS**
-컨테이너 로그 스트림 분석 시 텍스트 전체를 디스크에 중복 저장하거나 스트링 분석 연산 오버헤드로 인해 로그 적재량이 급증할 때 감시 데몬 자체가 멈추거나 병목을 겪는 위협이 있었음.
+    CM->>SP: 1. GetSnapshotsAsync()
+    SP->>DH: Docker Engine API 호출 (컨테이너/네트워크 정보)
+    DH-->>SP: 컨테이너 목록 & 헬스 상태 반환
+    SP-->>CM: Snapshots 목록 반환
+    
+    CM->>DS: 2. ObserveSnapshot(Snapshots)
+    note over DS: 인메모리 대시보드 상태 갱신
+    
+    rect rgb(12, 35, 64)
+        note over CM, DH: 이상 상태 감지 및 이벤트 발행
+        CM->>CM: 이전 상태와 비교하여 다운 상태 확인 (Exited/Unhealthy)
+        alt 상태 변화 발생 (Container Down)
+            CM->>EP: PublishAsync(NexusEvent.ContainerDown)
+            EP->>DS: ObserveEvent(Event)
+        end
+    end
 
-**TO-BE**
-Docker 컨테이너의 로그 스트림을 실시간 스트리밍 바이트 단위 파이프라인으로 연결하여, 특정 패턴(예: DB 인증 실패, 데드락 키워드)이 포착되는 즉시 비동기로 이벤트를 격리 발행함. 실시간 로그 가동 범위 내에서 감시 데이터 파괴 없이 즉시 Alert 알림을 발생시키도록 설계해 보안 침해 및 장애 전파를 실시간 방지함.
+    rect rgb(45, 26, 21)
+        note over CM, DH: 로그 패턴 스캔
+        CM->>LS: 3. ScanAsync(Snapshots, Patterns)
+        LS->>DH: GetContainerLogs (최근 로그 조회)
+        DH-->>LS: 로그 스트림 반환
+        LS->>LS: 정규식 패턴 매칭 수행
+        LS-->>CM: 매칭된 로그 결과 목록 반환
+        loop 각 매칭 항목
+            CM->>EP: PublishAsync(NexusEvent.LogPatternMatched)
+            EP->>DS: ObserveEvent(Event)
+        end
+    end
 
-### 기술적 의사결정의 근거 및 트레이드 오프
-
-| 도입 기술 | 선택 및 아키텍처적 근거 | 초경량 모니터링 관점의 이점 |
-| :--- | :--- | :--- |
-| .NET 10 Native AOT | JIT 실행 오버헤드를 제거하고 네이티브 실행 파일로 컴파일하기 위해 도입 | 컨테이너 배포 크기를 10MB 이하로 줄이고, 메모리 사용량을 30MB 미만으로 낮춤 |
-| Unix Domain Socket 직접 연동 | 서드파티 Docker SDK에 대한 의존성을 걷어내고 순수 OS 레벨의 도커 데몬 소켓 통신 무결성을 실현하기 위해 구현 | 불필요한 SDK 래퍼 라이브러리 레이어를 제거하여 통신 레이턴시를 제로에 수렴하게 만들고 빌드 종속성 무결성을 100% 획득 |
-| HTML5 & Vanilla JS 임베디드 UI | 외부 정적 파일 서빙 라이브러리 의존성을 배제하고 데몬 내부 리소스 파일로 내장하기 위해 설계 | 단일 실행 바이너리 내에 대시보드 리소스가 압축 임베딩되어 배포가 매우 간편하며, 별도의 웹 서버 구동 리소스를 제거함 |
-
-### 회고
-서드파티 라이브러리나 방대한 프레임워크에 의존하지 않고, OS 소켓 및 런타임 내장 하위 레이어를 직접 제어하는 설계 방식이 시스템 자원 소모와 배포 독립성에 얼마나 큰 혁신을 주는지 몸소 체득한 프로젝트였습니다. Unix Domain Socket 인터페이스를 .NET native 모듈로 결합하고 Native AOT 컴파일 시 경고(Warning) 없이 네이티브 바이너리로 번역되도록 제한 요소를 극복하면서, 하드웨어 친화적 시스템 소프트웨어 엔지니어로서의 깊은 통찰력을 기를 수 있었습니다. 소규모 클러스터에서도 인프라 비용 걱정 없이 고성능 실시간 모니터링을 가능하게 만들어 개발 생산성을 크게 높인 뜻깊은 경험이었습니다.
+    rect rgb(15, 44, 27)
+        note over CM, DH: 네트워크 연결성 검사
+        CM->>NP: 4. ProbeAsync(Targets)
+        NP->>DH: 임시 Probe 컨테이너(Busybox) 기동 요청
+        DH-->>NP: Probe 컨테이너 실행 완료
+        NP->>DH: Exec DNS / TCP Probe 명령 실행
+        DH-->>NP: Probe 결과 반환
+        NP->>DH: 임시 Probe 컨테이너 제거
+        NP-->>CM: 연결성 결과 목록 반환
+        loop 연결 실패 항목
+            CM->>EP: PublishAsync(NexusEvent.ConnectivityFailed)
+            EP->>DS: ObserveEvent(Event)
+        end
+    end
+```
