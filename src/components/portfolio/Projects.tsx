@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react"
 import { Card, CardDescription, CardFooter, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -8,11 +9,130 @@ import { useLayoutEffect, useRef } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import mermaid from "mermaid"
+
+function Mermaid({ chart }: { chart: string }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    let isMounted = true
+
+    // Reset contents
+    containerRef.current.innerHTML = chart
+    containerRef.current.removeAttribute("data-processed")
+
+    const renderDiagram = async () => {
+      try {
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "dark",
+          securityLevel: "loose",
+          themeVariables: {
+            background: "transparent",
+            primaryColor: "#a78bfa",
+            primaryTextColor: "#fff",
+            lineColor: "#7c3aed",
+            nodeBorder: "#a78bfa",
+            mainBkg: "#07070d",
+          }
+        })
+
+        await mermaid.run({
+          nodes: [containerRef.current]
+        })
+        if (isMounted) {
+          setError(null)
+        }
+      } catch (err: any) {
+        console.error("Mermaid run error:", err)
+        if (isMounted) {
+          setError(err.message || String(err))
+        }
+      }
+    }
+
+    // Small delay to ensure React lifecycle mounting is complete
+    const timeoutId = setTimeout(renderDiagram, 50)
+
+    return () => {
+      isMounted = false
+      clearTimeout(timeoutId)
+    }
+  }, [chart])
+
+  if (error) {
+    return (
+      <div className="p-4 my-6 bg-red-950/20 border border-red-500/20 rounded-xl text-xs text-red-400 font-mono">
+        <p className="font-bold mb-1">Architecture Diagram Rendering Error:</p>
+        <pre className="whitespace-pre-wrap">{error}</pre>
+        <details className="mt-2 opacity-70">
+          <summary className="cursor-pointer">Mermaid Code Source</summary>
+          <pre className="mt-1 bg-black/40 p-2 rounded overflow-x-auto text-[10px]">{chart}</pre>
+        </details>
+      </div>
+    )
+  }
+
+  return (
+    <div className="relative w-full">
+      {/* Dynamic override styles for Mermaid dark mode compatibility */}
+      <style>{`
+        .mermaid svg {
+          max-width: 100% !important;
+          height: auto !important;
+        }
+        .mermaid svg .label, 
+        .mermaid svg .label text,
+        .mermaid svg .node text,
+        .mermaid svg .node .label {
+          fill: #f1f5f9 !important;
+          color: #f1f5f9 !important;
+          font-family: inherit !important;
+        }
+        .mermaid svg .edgePath .path {
+          stroke: #7c3aed !important;
+          stroke-width: 1.5px !important;
+        }
+        .mermaid svg .edgePath .markerPath {
+          fill: #7c3aed !important;
+          stroke: #7c3aed !important;
+        }
+        .mermaid svg .edgeLabel rect {
+          fill: #0c0c16 !important;
+        }
+        .mermaid svg .edgeLabel text,
+        .mermaid svg .edgeLabel span {
+          fill: #a78bfa !important;
+          color: #a78bfa !important;
+        }
+        .mermaid svg .cluster rect {
+          fill: rgba(167, 139, 250, 0.03) !important;
+          stroke: rgba(167, 139, 250, 0.15) !important;
+          stroke-width: 1px !important;
+        }
+        .mermaid svg .cluster .label text,
+        .mermaid svg .cluster .label {
+          fill: #a78bfa !important;
+          color: #a78bfa !important;
+          font-weight: 700 !important;
+        }
+      `}</style>
+      <div
+        ref={containerRef}
+        className="mermaid flex justify-center p-4 my-6 bg-[#07070d]/60 border border-primary/10 rounded-xl overflow-x-auto w-full select-none shadow-inner"
+      >
+        {chart}
+      </div>
+    </div>
+  )
+}
 
 // Markdown Content Imports (separated from code)
 import vehicleVssMd from "@/content/vehicle-vss.md?raw"
 import asyncBackendMd from "@/content/async-backend.md?raw"
-import lmsAiMd from "@/content/lms-ai.md?raw"
 import binanceArchiveMd from "@/content/binance-archive.md?raw"
 import projectNexusMd from "@/content/project-nexus.md?raw"
 
@@ -21,50 +141,36 @@ gsap.registerPlugin(ScrollTrigger)
 const projectGroups = [
   {
     title: "Company Projects",
-    description: "실무 환경에서 AI 서빙과 백엔드 설계를 맡아 진행한 프로젝트입니다.",
+    description: "실무 환경에서 가상화 오케스트레이션 및 서버 리소스 최적화를 설계하고 구현한 프로젝트입니다.",
     footerLabel: "Company Work (Private IP)",
-    gridClassName: "md:grid-cols-2 lg:grid-cols-3",
+    gridClassName: "md:grid-cols-2",
     projects: [
       {
         title: "차량 데이터(VSS) 기반 엣지 AI 시스템",
-        description: "K3s 환경의 엣지 디바이스에서 시계열 모델(USAD)과 소형 언어 모델(sLLM)을 결합하여 오탐률을 획기적으로 줄인 온디바이스 AI 서빙 파이프라인입니다. CAN 데이터를 VSS 포맷으로 실시간 매핑하는 모듈을 개발했습니다.",
-        tags: ["K3s", "Ollama", "Docker", "TensorRT", "USAD", "CAN", "VSS"],
+        description: "socketcand Bridge를 통해 원격 차량 ECU 데이터를 수집하고, can_raw_streamer(Rust)를 통해 실시간 CAN 프레임을 Redis Stream에 고속 인제스천한 뒤, 이중 AI 파이프라인(ai_watcher + anomaly_verifier) 및 vcan/vsomeip 통신을 제어하는 고안정성 차량 엣지 가상화 시스템입니다.",
+        tags: ["K3s", "SocketCAN", "socketcand", "vsomeip", "Uptane TUF", "ONNX Runtime", "Ollama"],
         visualLabel: "Edge AI Serving",
         icon: Cpu,
         metrics: [
-          { label: "오탐률", value: "80% 감소" },
-          { label: "추론 속도", value: "18ms" },
-          { label: "대상 환경", value: "Jetson Orin" }
+          { label: "인제스천 아키텍처", value: "Rust / SocketCAN" },
+          { label: "ECU 보안 표준", value: "Uptane TUF OTA" },
+          { label: "로컬 통신 프로토콜", value: "vsomeip & CAN Bus" }
         ],
         markdownContent: vehicleVssMd,
         repoUrl: "",
       },
       {
         title: "대용량 트래픽 처리를 위한 비동기 AI 백엔드",
-        description: "대형 AI 모델(LLM/BERT)의 응답 대기 시간 동안 서버가 블로킹되지 않도록 FastAPI 비동기 아키텍처를 도입했습니다. Vertex AI와 GCS를 연동하여 대용량 파일 처리 파이프라인을 최적화했습니다.",
-        tags: ["FastAPI", "Vertex AI", "GCP", "BERT"],
+        description: "FastAPI ASGI 라우터와 SQLAlchemy ORM을 결합한 비동기 백엔드 환경에서, Vertex AI 및 AWS Polly/Stability AI 호출 레이턴시 동안 스레드가 잠기는 병목을 해결하고 GCS 업로드 I/O를 최적화한 고가용성 API 플랫폼입니다.",
+        tags: ["FastAPI (ASGI)", "SQLAlchemy ORM", "Vertex AI (Gemini)", "AWS Polly", "GCS Integration", "PostgreSQL"],
         visualLabel: "Async AI Backend",
         icon: Server,
         metrics: [
-          { label: "대기 지연", value: "95% 단축" },
-          { label: "동시 처리", value: "FastAPI Async" },
-          { label: "클라우드", value: "GCP Vertex AI" }
+          { label: "비동기 라우터", value: "FastAPI / ASGI" },
+          { label: "데이터 영속성", value: "SQLAlchemy ORM" },
+          { label: "외부 연동 API", value: "Vertex / AWS / Stability" }
         ],
         markdownContent: asyncBackendMd,
-        repoUrl: "",
-      },
-      {
-        title: "맥락 유지형 LMS AI 솔루션",
-        description: "Django ORM을 활용해 복잡한 학습 데이터의 무결성을 보장하는 스키마를 설계했습니다. Gemini 모델의 긴 컨텍스트 윈도우를 활용하여 강의 전체 맥락을 유지하는 Grounding 로직을 구현했습니다.",
-        tags: ["Django", "Gemini API", "PostgreSQL", "Grounding"],
-        visualLabel: "Context Grounding",
-        icon: Database,
-        metrics: [
-          { label: "맥락 크기", value: "1M Tokens" },
-          { label: "기반 모델", value: "Gemini 2.0 Flash" },
-          { label: "정확도", value: "98% 보장" }
-        ],
-        markdownContent: lmsAiMd,
         repoUrl: "",
       }
     ]
@@ -77,28 +183,28 @@ const projectGroups = [
     projects: [
       {
         title: "Binance 체결 데이터 아카이브 서버",
-        description: "Binance Spot 체결 데이터를 스트리밍으로 파싱해 ClickHouse에 적재하는 ASP.NET Core 인제스천(Ingestion) 서버입니다. 대용량 JSON 요청을 청크 단위 RowBinary insert로 처리하고, API Key 인증과 Native AOT Docker 배포 구성을 함께 설계했습니다.",
-        tags: ["ASP.NET Core", "ClickHouse", "Docker", "RowBinary", "Native AOT"],
+        description: "대용량 스트리밍 JSON 데이터를 PipeReader + Utf8JsonReader 순차 파싱으로 처리하고, ApiKeyHeader 검증 레이어를 거쳐 Native RowBinary 포맷으로 ClickHouse(ReplacingMergeTree 엔진)에 고속 적재하는 고성능 인제스천 서버입니다.",
+        tags: ["ASP.NET Core", "ClickHouse", "PipeReader", "RowBinary", "Native AOT", "ReplacingMergeTree"],
         visualLabel: "Streaming Ingest",
         icon: Archive,
         metrics: [
-          { label: "적재 속도", value: "1.2M msgs/s" },
-          { label: "저장 엔진", value: "ClickHouse" },
-          { label: "최적화", value: "Native AOT" }
+          { label: "파싱 아키텍처", value: "PipeReader 스트리밍" },
+          { label: "중복 제거", value: "이중 필터링 (DB/App)" },
+          { label: "배포 방식", value: "Native AOT" }
         ],
         markdownContent: binanceArchiveMd,
         repoUrl: "",
       },
       {
         title: "Project Nexus",
-        description: "Docker Compose 환경에서 동일 네트워크 내 컨테이너 상태, Healthcheck, DNS/TCP 연결성, 인증 실패 로그 패턴을 주기적으로 감시하는 .NET 10 모니터링 데몬입니다. Docker Socket 기반 네트워크 자동 감지와 내장 웹 대시보드를 구현했습니다.",
-        tags: [".NET 10", "Docker API", "ASP.NET Core", "Monitoring", "Dashboard"],
+        description: "Docker Socket(UDS)에 직접 밀착하여 컨테이너 상태 변화를 이벤트 단위로 구독하고, 격리망 내부의 가용성(DNS/TCP) 실시간 프로빙 및 로그 스트림 정규식 매칭을 통해 무의존성(Native AOT)으로 동작하는 초경량 시스템 관제 데몬입니다.",
+        tags: ["C# / .NET 10", "Docker Socket (UDS)", "SocketsHttpHandler", "Native AOT", "Container Monitor", "Zero-Dependency"],
         visualLabel: "Docker Monitor",
         icon: Network,
         metrics: [
-          { label: "감시 주기", value: "1초" },
-          { label: "상태 감지", value: "Docker Socket" },
-          { label: "네트워크", value: "DNS/TCP Probe" }
+          { label: "연동 아키텍처", value: "Docker Socket (UDS)" },
+          { label: "실시간 프로빙", value: "DNS/TCP & Log Stream" },
+          { label: "장애 탐지 지연", value: "1초 미만 (실시간)" }
         ],
         markdownContent: projectNexusMd,
         repoUrl: "",
@@ -186,7 +292,7 @@ export default function Projects() {
         <h2 className="text-4xl font-extrabold tracking-tight mb-4 md:text-5xl font-heading bg-gradient-to-r from-foreground via-foreground to-purple-400/80 bg-clip-text text-transparent">
           Selected Projects
         </h2>
-        <p className="text-muted-foreground text-lg max-w-3xl leading-relaxed">
+        <p className="text-muted-foreground text-lg max-w-3xl leading-relaxed break-keep">
           실제 운영 환경과 엣지 디바이스에서의 AI 서빙 최적화, 대용량 데이터 적재 아키텍처, 그리고 인프라 모니터링 설계 사례입니다.
         </p>
       </div>
@@ -238,13 +344,13 @@ function ProjectCard({ project }: { project: Project }) {
           {/* Title and description wrapper (block layout with fixed heights for absolute alignment) */}
           <div className="shrink-0">
             <CardTitle
-              className="text-xl font-bold group-hover:text-primary transition-colors duration-300 leading-tight flex items-center mb-2"
+              className="text-xl font-bold group-hover:text-primary transition-colors duration-300 leading-tight flex items-center mb-2 break-keep"
               style={{ height: '56px' }}
             >
               {project.title}
             </CardTitle>
             <CardDescription
-              className="text-sm leading-relaxed text-slate-400 block overflow-y-auto"
+              className="text-sm leading-relaxed text-slate-400 block overflow-y-auto break-keep"
               style={{ height: '130px' }}
             >
               {project.description}
@@ -311,12 +417,33 @@ function ProjectCard({ project }: { project: Project }) {
                       ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-4 text-slate-300 space-y-1" {...props} />,
                       ol: ({ node, ...props }) => <ol className="list-decimal pl-5 mb-4 text-slate-300 space-y-1" {...props} />,
                       li: ({ node, ...props }) => <li className="text-sm leading-relaxed" {...props} />,
-                      code: ({ node, ...props }) => (
-                        <code className="bg-primary/10 border border-primary/25 rounded px-1.5 py-0.5 text-xs text-primary font-mono" {...props} />
-                      ),
-                      pre: ({ node, ...props }) => (
-                        <pre className="bg-black/50 border border-primary/15 rounded-lg p-4 overflow-x-auto mb-4 font-mono text-xs text-slate-300" {...props} />
-                      ),
+                      code: ({ className, children, ...props }) => {
+                        const match = /language-(\w+)/.exec(className || "")
+                        const isMermaid = match && match[1] === "mermaid"
+                        return isMermaid ? (
+                          <Mermaid chart={String(children).replace(/\n$/, "")} />
+                        ) : (
+                          <code className="bg-primary/10 border border-primary/25 rounded px-1.5 py-0.5 text-xs text-primary font-mono" {...props}>
+                            {children}
+                          </code>
+                        )
+                      },
+                      pre: ({ children, ...props }) => {
+                        const isMermaid = React.Children.toArray(children).some((child: any) => {
+                          return (
+                            child?.props?.className === "language-mermaid" ||
+                            child?.props?.children?.props?.className === "language-mermaid"
+                          )
+                        })
+                        if (isMermaid) {
+                          return <>{children}</>
+                        }
+                        return (
+                          <pre className="bg-black/50 border border-primary/15 rounded-lg p-4 overflow-x-auto mb-4 font-mono text-xs text-slate-300" {...props}>
+                            {children}
+                          </pre>
+                        )
+                      },
                       blockquote: ({ node, ...props }) => (
                         <blockquote className="border-l-2 border-primary/40 pl-4 italic text-muted-foreground my-4 bg-primary/5 py-1 pr-2 rounded-r" {...props} />
                       ),
