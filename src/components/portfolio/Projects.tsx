@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { Card, CardDescription, CardFooter, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Archive, Cpu, Database, Lock, Network, Server, FileText, Code } from "lucide-react"
+import { Archive, Cpu, Lock, Network, Server, FileText, Code } from "lucide-react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useLayoutEffect, useRef } from "react"
@@ -40,9 +40,12 @@ function Mermaid({ chart }: { chart: string }) {
           }
         })
 
-        await mermaid.run({
-          nodes: [containerRef.current]
-        })
+        const node = containerRef.current
+        if (node) {
+          await mermaid.run({
+            nodes: [node]
+          })
+        }
         if (isMounted) {
           setError(null)
         }
