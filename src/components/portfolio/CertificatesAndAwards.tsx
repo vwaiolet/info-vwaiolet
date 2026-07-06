@@ -120,7 +120,7 @@ export default function CertificatesAndAwards() {
               >
                 <div className="flex justify-between items-start gap-4 mb-4">
                   <div>
-                    <h4 className="text-base font-bold text-foreground mb-1 leading-snug">{edu.title}</h4>
+                    <h4 className="text-base font-bold text-foreground mb-1 leading-snug break-keep">{edu.title}</h4>
                     <p className="text-primary text-xs font-semibold">{edu.institution}</p>
                   </div>
                   <div className="flex items-center gap-1 text-[10px] text-slate-400 bg-primary/5 border border-primary/10 px-2.5 py-1 rounded-full whitespace-nowrap">
@@ -148,7 +148,7 @@ export default function CertificatesAndAwards() {
               >
                 <div className="flex justify-between items-start gap-4 mb-4">
                   <div>
-                    <h4 className="text-base font-bold text-foreground mb-1 leading-snug">{award.title}</h4>
+                    <h4 className="text-base font-bold text-foreground mb-1 leading-snug break-keep">{award.title}</h4>
                     <p className="text-primary text-xs font-semibold">{award.organization}</p>
                   </div>
                   <div className="flex items-center gap-1 text-[10px] text-slate-400 bg-primary/5 border border-primary/10 px-2.5 py-1 rounded-full whitespace-nowrap">
@@ -176,7 +176,7 @@ export default function CertificatesAndAwards() {
               >
                 <div className="flex justify-between items-start gap-4 mb-4">
                   <div>
-                    <h4 className="text-base font-bold text-foreground mb-1 leading-snug">{cert.title}</h4>
+                    <h4 className="text-base font-bold text-foreground mb-1 leading-snug break-keep">{cert.title}</h4>
                     <p className="text-primary text-xs font-semibold">{cert.organization}</p>
                   </div>
                   <div className="flex items-center gap-1 text-[10px] text-slate-400 bg-primary/5 border border-primary/10 px-2.5 py-1 rounded-full whitespace-nowrap">
