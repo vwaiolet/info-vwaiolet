@@ -42,17 +42,18 @@ function Mermaid({ chart }: { chart: string }) {
         nodes: [containerRef.current]
       })
       setError(null)
-    } catch (err: any) {
+    } catch (err: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) {
       console.error("Mermaid run error:", err)
       setError(err.message || String(err))
     }
   }
 
   useEffect(() => {
-    setError(null)
+    setError(null) // eslint-disable-line react-hooks/set-state-in-effect
     // Small delay to ensure React lifecycle mounting is complete
     const timeoutId = setTimeout(renderDiagram, 50)
     return () => clearTimeout(timeoutId)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chart])
 
   // Capture current rendered SVG and open modal
@@ -132,14 +133,14 @@ function Mermaid({ chart }: { chart: string }) {
         <DialogTrigger asChild>
           <button 
             onClick={handleOpenZoom}
-            className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-lg border border-primary/20 bg-background/80 text-muted-foreground backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:text-primary hover:border-primary/45 transition-all duration-300 cursor-pointer shadow-lg"
+            className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-lg border border-primary/20 bg-transparent/80 text-muted-foreground backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:text-primary hover:border-primary/45 transition-all duration-300 cursor-pointer shadow-lg"
             title="다이어그램 확대 보기"
           >
             <Maximize2 className="h-4 w-4" />
           </button>
         </DialogTrigger>
         <DialogContent className="w-full max-w-[95vw] md:max-w-[90vw] max-h-[92vh] overflow-hidden bg-[#07070d]/98 border-primary/25 backdrop-blur-xl text-slate-300 shadow-2xl p-6 md:p-8 flex flex-col gap-4 rounded-2xl z-[100]">
-          <DialogHeader className="pb-2 border-b border-primary/10 shrink-0">
+          <DialogHeader className="pb-2 border-b border-primary/30 shrink-0">
             <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
               <ZoomIn className="w-5 h-5 text-primary" />
               <span>시스템 아키텍처 다이어그램 확대</span>
@@ -149,7 +150,7 @@ function Mermaid({ chart }: { chart: string }) {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="flex-1 overflow-auto flex items-start justify-center p-4 bg-black/40 border border-primary/10 rounded-xl">
+          <div className="flex-1 overflow-auto flex items-start justify-center p-4 bg-black/40 border border-primary/30 rounded-xl">
             <div 
               className="zoom-mermaid select-none flex justify-center w-full min-w-[800px] md:min-w-[1200px] p-6"
               dangerouslySetInnerHTML={{ __html: zoomedSvg }}
@@ -161,7 +162,7 @@ function Mermaid({ chart }: { chart: string }) {
       <div 
         ref={containerRef}
         onClick={handleOpenZoom}
-        className="mermaid flex justify-center p-4 my-6 bg-[#07070d]/60 border border-primary/10 rounded-xl overflow-x-auto w-full select-none shadow-inner cursor-pointer hover:border-primary/30 transition-all duration-300"
+        className="mermaid flex justify-center p-4 my-6 bg-[#07070d]/60 border border-primary/30 rounded-xl overflow-x-auto w-full select-none shadow-inner cursor-pointer hover:border-primary/30 transition-all duration-300"
       >
         {chart}
       </div>
@@ -367,9 +368,9 @@ function ProjectCard({ project }: { project: Project }) {
       data-project-card
       className="h-full"
     >
-      <Card className="flex flex-col bg-[#07070d]/50 border-primary/10 overflow-hidden transition-all duration-300 hover:border-primary/45 hover:bg-[#0c0c16]/70 group h-full shadow-xl shadow-black/40 hover-glow-card py-0">
+      <Card className="flex flex-col bg-[#07070d]/50 border-primary/30 overflow-hidden transition-all duration-300 hover:border-primary/45 hover:bg-[#0c0c16]/70 group h-full shadow-xl shadow-black/40 hover-glow-card py-0">
         {/* Top bar header */}
-        <div className="border-b border-primary/10 bg-primary/5 px-5 py-4 flex items-center justify-between shrink-0">
+        <div className="border-b border-primary/30 glassmorphism-primary px-5 py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-primary/25 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
               <Icon className="w-4 h-4" />
@@ -398,7 +399,7 @@ function ProjectCard({ project }: { project: Project }) {
 
           <div className="flex flex-col flex-1 justify-between gap-4 mt-auto">
             {/* Metrics/Stats Block */}
-            <div className="grid grid-cols-3 gap-2 p-3 bg-primary/5 border border-primary/10 rounded-lg text-center shrink-0">
+            <div className="grid grid-cols-3 gap-2 p-3 glassmorphism-primary border border-primary/30 rounded-lg text-center shrink-0">
               {project.metrics.map((metric, idx) => (
                 <div key={idx} className="flex flex-col">
                   <span className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wider">{metric.label}</span>
@@ -419,7 +420,7 @@ function ProjectCard({ project }: { project: Project }) {
         </div>
 
         {/* Card Footer locked at bottom, preventing shrinking */}
-        <CardFooter className="grid grid-cols-2 gap-2 pt-4 pb-6 px-4 border-t border-primary/10 bg-black/20 shrink-0 mt-auto">
+        <CardFooter className="grid grid-cols-2 gap-2 pt-4 pb-6 px-4 border-t border-primary/30 bg-black/20 shrink-0 mt-auto">
           {/* Technical Document Button */}
           {project.markdownContent ? (
             <Dialog>
@@ -427,14 +428,14 @@ function ProjectCard({ project }: { project: Project }) {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full gap-1.5 h-10 border-primary/15 hover:border-primary/40 hover:text-primary text-[11px] sm:text-xs font-semibold bg-background/30 hover:bg-background/80 transition-all duration-300 cursor-pointer"
+                  className="w-full gap-1.5 h-10 border-primary/15 hover:border-primary/40 hover:text-primary text-[11px] sm:text-xs font-semibold bg-transparent/30 hover:bg-transparent/80 transition-all duration-300 cursor-pointer"
                 >
                   <FileText className="w-3.5 h-3.5" />
                   <span>기술 문서</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="w-full max-w-[calc(100%-2rem)] sm:max-w-2xl md:max-w-4xl lg:max-w-5xl max-h-[88vh] overflow-hidden bg-[#07070d]/95 border-primary/20 backdrop-blur-md text-slate-300 shadow-2xl p-6 sm:p-8 md:p-10 flex flex-col gap-0 rounded-xl">
-                <DialogHeader className="mb-6 pb-4 border-b border-primary/10 shrink-0">
+                <DialogHeader className="mb-6 pb-4 border-b border-primary/30 shrink-0">
                   <DialogTitle className="text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
                     <FileText className="w-5.5 h-5.5 text-primary" />
                     <span>{project.title}</span>
@@ -449,7 +450,7 @@ function ProjectCard({ project }: { project: Project }) {
                     remarkPlugins={[remarkGfm]}
                     components={{
                       /* eslint-disable @typescript-eslint/no-unused-vars */
-                      h1: ({ node, ...props }) => <h1 className="text-2xl font-extrabold tracking-tight mb-4 mt-6 bg-gradient-to-r from-foreground via-foreground to-purple-400/80 bg-clip-text text-transparent border-b border-primary/10 pb-2 font-heading" {...props} />,
+                      h1: ({ node, ...props }) => <h1 className="text-2xl font-extrabold tracking-tight mb-4 mt-6 bg-gradient-to-r from-foreground via-foreground to-purple-400/80 bg-clip-text text-transparent border-b border-primary/30 pb-2 font-heading" {...props} />,
                       h2: ({ node, ...props }) => <h2 className="text-xl font-bold tracking-tight mb-3 mt-5 text-glow font-heading text-white" {...props} />,
                       h3: ({ node, ...props }) => <h3 className="text-lg font-bold tracking-tight mb-2 mt-4 text-white/90" {...props} />,
                       p: ({ node, ...props }) => <p className="text-sm leading-relaxed text-slate-300 mb-4" {...props} />,
@@ -468,6 +469,7 @@ function ProjectCard({ project }: { project: Project }) {
                         )
                       },
                       pre: ({ children, ...props }) => {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const isMermaid = React.Children.toArray(children).some((child: any) => {
                           return (
                             child?.props?.className === "language-mermaid" ||
@@ -484,18 +486,18 @@ function ProjectCard({ project }: { project: Project }) {
                         )
                       },
                       blockquote: ({ node, ...props }) => (
-                        <blockquote className="border-l-2 border-primary/40 pl-4 italic text-muted-foreground my-4 bg-primary/5 py-1 pr-2 rounded-r" {...props} />
+                        <blockquote className="border-l-2 border-primary/40 pl-4 italic text-muted-foreground my-4 glassmorphism-primary py-1 pr-2 rounded-r" {...props} />
                       ),
                       a: ({ node, ...props }) => (
                         <a className="text-primary hover:underline font-semibold" target="_blank" rel="noopener noreferrer" {...props} />
                       ),
                       table: ({ node, ...props }) => (
-                        <div className="overflow-x-auto my-6 border border-primary/10 rounded-lg">
+                        <div className="overflow-x-auto my-6 border border-primary/30 rounded-lg">
                           <table className="w-full text-sm border-collapse text-slate-300" {...props} />
                         </div>
                       ),
                       th: ({ node, ...props }) => (
-                        <th className="border-b border-primary/10 bg-primary/5 px-4 py-2 font-bold text-left text-white" {...props} />
+                        <th className="border-b border-primary/30 glassmorphism-primary px-4 py-2 font-bold text-left text-white" {...props} />
                       ),
                       td: ({ node, ...props }) => (
                         <td className="border-b border-primary/5 px-4 py-2 text-slate-400" {...props} />
@@ -512,7 +514,7 @@ function ProjectCard({ project }: { project: Project }) {
             <Button
               variant="outline"
               size="sm"
-              className="w-full gap-1.5 h-10 border-primary/10 text-[11px] sm:text-xs font-semibold bg-background/20 cursor-default text-slate-500 hover:bg-background/20"
+              className="w-full gap-1.5 h-10 border-primary/30 text-[11px] sm:text-xs font-semibold bg-transparent/20 cursor-default text-slate-500 hover:bg-transparent/20"
               disabled
             >
               <Lock className="w-3.5 h-3.5 text-slate-500" />
@@ -526,7 +528,7 @@ function ProjectCard({ project }: { project: Project }) {
               asChild
               variant="outline"
               size="sm"
-              className="w-full gap-1.5 h-10 border-primary/15 hover:border-primary/40 hover:text-primary text-[11px] sm:text-xs font-semibold bg-background/30 hover:bg-background/80 transition-all duration-300 cursor-pointer"
+              className="w-full gap-1.5 h-10 border-primary/15 hover:border-primary/40 hover:text-primary text-[11px] sm:text-xs font-semibold bg-transparent/30 hover:bg-transparent/80 transition-all duration-300 cursor-pointer"
             >
               <a href={project.repoUrl} target="_blank" rel="noopener noreferrer">
                 <Code className="w-3.5 h-3.5" />
@@ -537,7 +539,7 @@ function ProjectCard({ project }: { project: Project }) {
             <Button
               variant="outline"
               size="sm"
-              className="w-full gap-1.5 h-10 border-primary/10 text-[11px] sm:text-xs font-semibold bg-background/20 cursor-default text-slate-500 hover:bg-background/20"
+              className="w-full gap-1.5 h-10 border-primary/30 text-[11px] sm:text-xs font-semibold bg-transparent/20 cursor-default text-slate-500 hover:bg-transparent/20"
               disabled
             >
               <Lock className="w-3.5 h-3.5 text-slate-500" />

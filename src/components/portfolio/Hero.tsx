@@ -26,7 +26,7 @@ export default function Hero() {
 
       <div className="flex flex-col items-center text-center gap-6 max-w-4xl mx-auto">
         <div data-hero-badge>
-          <Badge variant="outline" className="px-3 py-1 text-xs font-semibold uppercase tracking-wider border-primary/30 bg-primary/5 text-primary">
+          <Badge variant="outline" className="px-3 py-1 text-xs font-semibold uppercase tracking-wider border-primary/30 glassmorphism-primary text-primary">
             ⚡ SYSTEM & SERVING INFRA ENGINEER
           </Badge>
         </div>
@@ -44,7 +44,7 @@ export default function Hero() {
 
         <p
           data-hero-copy
-          className="max-w-[750px] text-base sm:text-lg md:text-xl text-slate-300 leading-relaxed mt-2 break-keep"
+          className="max-w-[750px] text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed mt-2 break-keep"
         >
           단순히 "돌아가는 기능"을 넘어 "왜 이 아키텍처여야 하는가?"를 끊임없이 고민합니다. 클라우드부터 엣지 디바이스까지, 효율성을 고려한 최적의 AI 서빙 환경을 구축합니다.
         </p>
