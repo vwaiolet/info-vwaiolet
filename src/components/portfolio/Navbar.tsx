@@ -40,7 +40,7 @@ export default function Navbar() {
     <header
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
         scrolled
-          ? "py-3 bg-background/70 backdrop-blur-md border-b border-primary/10 shadow-lg shadow-black/20"
+          ? "py-3 glassmorphism border-b-0 shadow-lg"
           : "py-5 bg-transparent"
       }`}
     >
@@ -95,7 +95,7 @@ export default function Navbar() {
 
       {/* Mobile Navigation Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed top-[60px] left-0 w-full h-[calc(100vh-60px)] bg-background/95 backdrop-blur-lg border-t border-primary/10 flex flex-col items-center justify-center gap-8 text-lg font-bold z-40 animate-fade-in">
+        <div className="lg:hidden fixed top-[60px] left-0 w-full h-[calc(100vh-60px)] glassmorphism border-t-0 flex flex-col items-center justify-center gap-8 text-lg font-bold z-40 animate-fade-in">
           <a
             href="/#home"
             onClick={() => setMobileMenuOpen(false)}

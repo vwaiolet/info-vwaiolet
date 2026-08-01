@@ -7,11 +7,13 @@ import CertificatesAndAwards from "@/components/portfolio/CertificatesAndAwards"
 
 function App() {
   return (
-    <div className="dark bg-background text-foreground selection:bg-primary/30 min-h-screen bg-grid-pattern relative flex flex-col">
+    <div className="bg-background text-foreground selection:bg-primary/30 min-h-screen bg-grid-pattern relative flex flex-col">
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[20%] left-[10%] w-[35rem] h-[35rem] bg-violet-500/5 rounded-full blur-[120px]" />
-        <div className="absolute top-[50%] right-[5%] w-[40rem] h-[40rem] bg-fuchsia-500/5 rounded-full blur-[130px]" />
-        <div className="absolute top-[80%] left-[20%] w-[30rem] h-[30rem] bg-indigo-500/5 rounded-full blur-[110px]" />
+        {/* Dynamic blobs for glassmorphism background */}
+        <div className="absolute top-[10%] left-[10%] w-[35rem] h-[35rem] bg-violet-300/30 dark:bg-violet-600/15 rounded-full blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-float-glow" />
+        <div className="absolute top-[40%] right-[5%] w-[40rem] h-[40rem] bg-fuchsia-300/30 dark:bg-fuchsia-600/15 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-float-glow" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-[70%] left-[20%] w-[30rem] h-[30rem] bg-indigo-300/30 dark:bg-indigo-600/15 rounded-full blur-[90px] mix-blend-multiply dark:mix-blend-screen animate-float-glow" style={{ animationDelay: '4s' }} />
+
       </div>
 
       <Navbar />
@@ -53,7 +55,7 @@ function PortfolioHome() {
 
 function SiteFooter() {
   return (
-    <footer className="border-t border-primary/10 py-10 bg-black/40 backdrop-blur-md relative z-10">
+    <footer className=" py-10 glassmorphism relative z-10">
       <div className="container mx-auto max-w-6xl px-4 md:px-8 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
         <div className="text-sm text-slate-400">
           <p>© {new Date().getFullYear()} Gyeongho Kim. All Rights Reserved.</p>
