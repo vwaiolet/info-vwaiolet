@@ -95,7 +95,7 @@ export default function Navbar() {
 
       {/* Mobile Navigation Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed top-[60px] left-0 w-full h-[calc(100vh-60px)] glassmorphism border-t-0 flex flex-col items-center justify-center gap-8 text-lg font-bold z-40 animate-fade-in">
+        <div className="lg:hidden fixed top-[60px] left-0 w-full h-[calc(100vh-60px)] bg-background border-t-0 flex flex-col items-center justify-center gap-8 text-lg font-bold z-40 animate-fade-in">
           <a
             href="/#home"
             onClick={() => setMobileMenuOpen(false)}
