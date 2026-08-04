@@ -1,4 +1,4 @@
-﻿import gsap from "gsap"
+import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useLayoutEffect, useRef } from "react"
 import { Calendar, Briefcase, ChevronRight } from "lucide-react"
@@ -80,7 +80,7 @@ export default function Experience() {
         data-experience-heading
         className="mb-16 text-center md:text-left"
       >
-        <h2 className="text-4xl font-extrabold tracking-tight mb-4 md:text-5xl font-heading bg-gradient-to-r from-foreground via-foreground to-purple-400/80 bg-clip-text text-transparent">
+        <h2 className="text-4xl font-extrabold tracking-tight mb-4 md:text-5xl font-heading bg-gradient-to-r from-foreground via-foreground to-purple-600 dark:to-purple-400 bg-clip-text text-transparent">
           Experience
         </h2>
         <p className="text-muted-foreground text-lg max-w-3xl leading-relaxed">
@@ -102,7 +102,7 @@ export default function Experience() {
             <div className="absolute left-[-39px] md:left-[-55px] top-6 w-3 h-3 md:w-4 md:h-4 rounded-full bg-primary border-2 border-background shadow-[0_0_8px_rgba(167,139,250,0.8)] group-hover:scale-125 transition-transform duration-300 z-10" />
 
             {/* Timeline Card */}
-            <div className="glassmorphism p-6 md:p-8 rounded-xl border border-primary/10 hover:border-primary/25 hover:bg-[#0c0c16]/50 transition-all duration-300 shadow-xl shadow-black/25">
+            <div className="glassmorphism p-6 md:p-8 rounded-xl hover-glow-card transition-all duration-300 shadow-xl">
               <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-6">
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
@@ -112,18 +112,18 @@ export default function Experience() {
                   <h3 className="text-2xl font-bold tracking-tight text-foreground">{exp.role}</h3>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 bg-primary/5 border border-primary/10 px-3 py-1 rounded-full w-fit">
+                <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground bg-primary/5 border border-primary/20 px-3 py-1 rounded-full w-fit">
                   <Calendar className="w-3.5 h-3.5 text-primary" />
                   <span>{exp.period}</span>
                 </div>
               </div>
 
-              <p className="text-base text-slate-300 mb-6 leading-relaxed border-l-2 border-primary/30 pl-4 py-0.5">
+              <p className="text-base text-foreground/90 mb-6 leading-relaxed border-l-2 border-primary/40 pl-4 py-0.5">
                 {exp.description}
               </p>
 
               <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Key Achievements</h4>
-              <ul className="space-y-3.5 text-sm text-slate-400">
+              <ul className="space-y-3.5 text-sm text-muted-foreground">
                 {exp.achievements.map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <ChevronRight className="w-4 h-4 text-primary mt-0.5 shrink-0" />
@@ -138,3 +138,4 @@ export default function Experience() {
     </div>
   )
 }
+

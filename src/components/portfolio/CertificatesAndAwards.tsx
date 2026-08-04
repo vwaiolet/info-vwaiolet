@@ -96,7 +96,7 @@ export default function CertificatesAndAwards() {
         data-certs-heading
         className="mb-16 text-center md:text-left"
       >
-        <h2 className="text-4xl font-extrabold tracking-tight mb-4 md:text-5xl font-heading bg-gradient-to-r from-foreground via-foreground to-purple-400 bg-clip-text text-transparent">
+        <h2 className="text-4xl font-extrabold tracking-tight mb-4 md:text-5xl font-heading bg-gradient-to-r from-foreground via-foreground to-purple-600 dark:to-purple-400 bg-clip-text text-transparent">
           Education & Credentials
         </h2>
         <p className="text-muted-foreground text-lg max-w-3xl leading-relaxed">
@@ -108,7 +108,7 @@ export default function CertificatesAndAwards() {
         {/* Education Column */}
         <div className="space-y-6">
           <div className="flex items-center gap-2 mb-2">
-            <GraduationCap className="w-5 h-5 text-emerald-400" />
+            <GraduationCap className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
             <h3 className="text-xl font-bold text-foreground">Education</h3>
           </div>
           <div className="space-y-6">
@@ -116,14 +116,14 @@ export default function CertificatesAndAwards() {
               <div
                 key={idx}
                 data-certs-card
-                className="glassmorphism p-6 rounded-xl border border-primary/10 hover-glow-card transition-all duration-300 shadow-xl shadow-black/25"
+                className="glassmorphism p-6 rounded-xl hover-glow-card transition-all duration-300 shadow-xl"
               >
                 <div className="flex justify-between items-start gap-4 mb-4">
                   <div>
                     <h4 className="text-base font-bold text-foreground mb-1 leading-snug break-keep">{edu.title}</h4>
                     <p className="text-primary text-xs font-semibold">{edu.institution}</p>
                   </div>
-                  <div className="flex items-center gap-1 text-[10px] text-slate-400 bg-primary/5 border border-primary/10 px-2.5 py-1 rounded-full whitespace-nowrap">
+                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground bg-primary/5 border border-primary/20 px-2.5 py-1 rounded-full whitespace-nowrap">
                     <Calendar className="w-3 h-3 text-primary" />
                     <span>{edu.date}</span>
                   </div>
@@ -136,7 +136,7 @@ export default function CertificatesAndAwards() {
         {/* Awards Column */}
         <div className="space-y-6">
           <div className="flex items-center gap-2 mb-2">
-            <Trophy className="w-5 h-5 text-yellow-500" />
+            <Trophy className="w-5 h-5 text-amber-500" />
             <h3 className="text-xl font-bold text-foreground">Awards</h3>
           </div>
           <div className="space-y-6">
@@ -144,14 +144,14 @@ export default function CertificatesAndAwards() {
               <div
                 key={idx}
                 data-certs-card
-                className="glassmorphism p-6 rounded-xl border border-primary/10 hover-glow-card transition-all duration-300 shadow-xl shadow-black/25"
+                className="glassmorphism p-6 rounded-xl hover-glow-card transition-all duration-300 shadow-xl"
               >
                 <div className="flex justify-between items-start gap-4 mb-4">
                   <div>
                     <h4 className="text-base font-bold text-foreground mb-1 leading-snug break-keep">{award.title}</h4>
                     <p className="text-primary text-xs font-semibold">{award.organization}</p>
                   </div>
-                  <div className="flex items-center gap-1 text-[10px] text-slate-400 bg-primary/5 border border-primary/10 px-2.5 py-1 rounded-full whitespace-nowrap">
+                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground bg-primary/5 border border-primary/20 px-2.5 py-1 rounded-full whitespace-nowrap">
                     <Calendar className="w-3 h-3 text-primary" />
                     <span>{award.date}</span>
                   </div>
@@ -164,7 +164,7 @@ export default function CertificatesAndAwards() {
         {/* Certifications Column */}
         <div className="space-y-6">
           <div className="flex items-center gap-2 mb-2">
-            <Award className="w-5 h-5 text-violet-400" />
+            <Award className="w-5 h-5 text-violet-500 dark:text-violet-400" />
             <h3 className="text-xl font-bold text-foreground">Certifications</h3>
           </div>
           <div className="space-y-6">
@@ -172,14 +172,14 @@ export default function CertificatesAndAwards() {
               <div
                 key={idx}
                 data-certs-card
-                className="glassmorphism p-6 rounded-xl border border-primary/10 hover-glow-card transition-all duration-300 shadow-xl shadow-black/25"
+                className="glassmorphism p-6 rounded-xl hover-glow-card transition-all duration-300 shadow-xl"
               >
                 <div className="flex justify-between items-start gap-4 mb-4">
                   <div>
                     <h4 className="text-base font-bold text-foreground mb-1 leading-snug break-keep">{cert.title}</h4>
                     <p className="text-primary text-xs font-semibold">{cert.organization}</p>
                   </div>
-                  <div className="flex items-center gap-1 text-[10px] text-slate-400 bg-primary/5 border border-primary/10 px-2.5 py-1 rounded-full whitespace-nowrap">
+                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground bg-primary/5 border border-primary/20 px-2.5 py-1 rounded-full whitespace-nowrap">
                     <Calendar className="w-3 h-3 text-primary" />
                     <span>{cert.date}</span>
                   </div>
@@ -192,3 +192,4 @@ export default function CertificatesAndAwards() {
     </div>
   )
 }
+

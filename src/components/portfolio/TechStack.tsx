@@ -98,7 +98,7 @@ export default function TechStack() {
         data-tech-heading
         className="mb-16 text-center md:text-left"
       >
-        <h2 className="text-4xl font-extrabold tracking-tight mb-4 md:text-5xl font-heading bg-gradient-to-r from-foreground via-foreground to-purple-400/80 bg-clip-text text-transparent">
+        <h2 className="text-4xl font-extrabold tracking-tight mb-4 md:text-5xl font-heading bg-gradient-to-r from-foreground via-foreground to-purple-600 dark:to-purple-400 bg-clip-text text-transparent">
           Technical Stack
         </h2>
         <p className="text-muted-foreground text-lg max-w-3xl leading-relaxed break-keep">
@@ -115,13 +115,13 @@ export default function TechStack() {
               data-tech-card
               className="h-full"
             >
-              <Card className="bg-[#07070d]/60 border-primary/10 hover:border-primary/45 hover:bg-[#0c0c16]/80 transition-all duration-300 h-full flex flex-col relative overflow-hidden group shadow-lg shadow-black/30 hover:shadow-primary/5 hover-glow-card">
+              <Card className="glassmorphism transition-all duration-300 h-full flex flex-col relative overflow-hidden group shadow-lg hover-glow-card">
                 {/* Glow border overlay */}
-                <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-primary/20 bg-primary/5 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
                       <Icon className="w-5 h-5" />
                     </div>
                     <CardTitle className="text-xl font-bold tracking-tight text-foreground">{tech.category}</CardTitle>
@@ -134,7 +134,7 @@ export default function TechStack() {
                     <Badge
                       key={skill}
                       variant="outline"
-                      className="text-xs py-1 px-2.5 border-primary/15 bg-primary/5 hover:bg-primary/15 text-slate-200 font-medium transition-all duration-200 cursor-default"
+                      className="text-xs py-1 px-2.5 border-primary/20 bg-primary/5 hover:bg-primary/15 text-foreground font-medium transition-all duration-200 cursor-default"
                     >
                       {skill}
                     </Badge>
@@ -148,3 +148,4 @@ export default function TechStack() {
     </div>
   )
 }
+
