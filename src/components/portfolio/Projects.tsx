@@ -311,7 +311,7 @@ const projectGroups = [
           { label: "배포 방식", value: "Native AOT" }
         ],
         markdownContent: binanceArchiveMd,
-        repoUrl: "",
+        repoUrl: "https://github.com/TriNeural/binance-archive-server",
       },
       {
         title: "Project Nexus",
@@ -325,7 +325,7 @@ const projectGroups = [
           { label: "장애 탐지 지연", value: "1초 미만 (실시간)" }
         ],
         markdownContent: projectNexusMd,
-        repoUrl: "",
+        repoUrl: "https://github.com/vwaiolet/project-nexus",
       }
     ]
   }
