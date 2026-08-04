@@ -88,7 +88,7 @@ export default function Experience() {
         </p>
       </div>
 
-      <div data-experience-list className="relative border-l border-primary/20 ml-4 md:ml-6 pl-8 md:pl-12 space-y-12 py-2">
+      <div data-experience-list className="relative border-l border-primary/40 ml-4 md:ml-6 pl-8 md:pl-12 space-y-12 py-2">
         {/* Neon Gradient Timeline Line Overlay */}
         <div className="absolute left-[-1.5px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-violet-500 via-purple-500 to-fuchsia-500/10 pointer-events-none" />
 

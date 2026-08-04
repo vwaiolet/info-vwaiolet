@@ -46,7 +46,7 @@ function Mermaid({ chart }: { chart: string }) {
         nodes: [containerRef.current]
       })
       setError(null)
-    } catch (err: any) {
+    } catch (err: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) {
       console.error("Mermaid run error:", err)
       setError(err.message || String(err))
     }
@@ -211,7 +211,7 @@ function Mermaid({ chart }: { chart: string }) {
         <DialogTrigger asChild>
           <button 
             onClick={handleOpenZoom}
-            className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-lg border border-primary/20 bg-background/80 text-muted-foreground backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:text-primary hover:border-primary/45 transition-all duration-300 cursor-pointer shadow-lg"
+            className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-lg border border-primary/20 bg-transparent/80 text-muted-foreground backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:text-primary hover:border-primary/45 transition-all duration-300 cursor-pointer shadow-lg"
             title="다이어그램 확대 보기"
           >
             <Maximize2 className="h-4 w-4" />
@@ -546,6 +546,7 @@ function ProjectCard({ project }: { project: Project }) {
                         )
                       },
                       pre: ({ children, ...props }) => {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const isMermaid = React.Children.toArray(children).some((child: any) => {
                           return (
                             child?.props?.className === "language-mermaid" ||
@@ -562,7 +563,7 @@ function ProjectCard({ project }: { project: Project }) {
                         )
                       },
                       blockquote: ({ node, ...props }) => (
-                        <blockquote className="border-l-2 border-primary/40 pl-4 italic text-muted-foreground my-4 bg-primary/5 py-1 pr-2 rounded-r" {...props} />
+                        <blockquote className="border-l-2 border-primary/40 pl-4 italic text-muted-foreground my-4 glassmorphism-primary py-1 pr-2 rounded-r" {...props} />
                       ),
                       a: ({ node, ...props }) => (
                         <a className="text-primary hover:underline font-semibold" target="_blank" rel="noopener noreferrer" {...props} />
