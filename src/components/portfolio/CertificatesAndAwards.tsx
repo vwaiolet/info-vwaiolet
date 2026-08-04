@@ -88,7 +88,7 @@ export default function CertificatesAndAwards() {
   }, [])
 
   return (
-    <div ref={sectionRef} id="awards" className="container mx-auto max-w-6xl px-4 md:px-8 py-20 relative flex flex-col justify-center">
+    <div ref={sectionRef} id="awards" className="container mx-auto max-w-6xl px-4 md:px-8 py-20 relative flex flex-col justify-center overflow-hidden">
       {/* Background glow blur */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-fuchsia-600/5 rounded-full blur-3xl -z-10 pointer-events-none" />
 

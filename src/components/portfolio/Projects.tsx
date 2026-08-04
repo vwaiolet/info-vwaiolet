@@ -400,7 +400,7 @@ export default function Projects() {
   }, [])
 
   return (
-    <div ref={sectionRef} id="projects" className="container mx-auto max-w-6xl px-4 py-20 md:py-28 lg:py-32 flex flex-col justify-center relative">
+    <div ref={sectionRef} id="projects" className="container mx-auto max-w-6xl px-4 py-20 md:py-28 lg:py-32 flex flex-col justify-center relative overflow-hidden">
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-fuchsia-600/5 rounded-full blur-3xl -z-10 pointer-events-none" />
 
       <div

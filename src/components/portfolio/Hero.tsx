@@ -19,7 +19,7 @@ export default function Hero() {
   }, [])
 
   return (
-    <div ref={heroRef} id="home" className="container mx-auto max-w-6xl px-4 py-24 md:py-32 lg:py-40 relative flex flex-col items-center justify-center">
+    <div ref={heroRef} id="home" className="container mx-auto max-w-6xl px-4 py-24 md:py-32 lg:py-40 relative flex flex-col items-center justify-center overflow-hidden">
       {/* Decorative Orbs */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[30rem] h-[30rem] bg-violet-500/10 dark:bg-violet-600/10 rounded-full blur-[120px] -z-10 animate-float-glow" />
       <div className="absolute -bottom-10 left-10 w-96 h-96 bg-fuchsia-500/10 dark:bg-fuchsia-600/5 rounded-full blur-3xl -z-10 animate-float-glow" style={{ animationDelay: "-5s" }} />

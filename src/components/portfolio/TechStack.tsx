@@ -90,7 +90,7 @@ export default function TechStack() {
   }, [])
 
   return (
-    <div ref={sectionRef} id="tech-stack" className="container mx-auto max-w-6xl px-4 py-20 md:py-28 lg:py-32 flex flex-col justify-center relative">
+    <div ref={sectionRef} id="tech-stack" className="container mx-auto max-w-6xl px-4 py-20 md:py-28 lg:py-32 flex flex-col justify-center relative overflow-hidden">
       {/* Subtle background glow */}
       <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl -z-10 pointer-events-none" />
 

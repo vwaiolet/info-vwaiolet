@@ -73,7 +73,7 @@ export default function Experience() {
   }, [])
 
   return (
-    <div ref={sectionRef} id="experience" className="container mx-auto max-w-5xl px-4 md:px-8 flex flex-col justify-center py-20 relative">
+    <div ref={sectionRef} id="experience" className="container mx-auto max-w-5xl px-4 md:px-8 flex flex-col justify-center py-20 relative overflow-hidden">
       <div className="absolute top-1/2 right-10 w-80 h-80 bg-violet-600/5 rounded-full blur-3xl -z-10 pointer-events-none" />
 
       <div
@@ -88,7 +88,7 @@ export default function Experience() {
         </p>
       </div>
 
-      <div data-experience-list className="relative border-l border-primary/40 ml-4 md:ml-6 pl-8 md:pl-12 space-y-12 py-2">
+      <div data-experience-list className="relative border-l border-primary/40 ml-7 md:ml-6 pl-6 md:pl-12 space-y-12 py-2">
         {/* Neon Gradient Timeline Line Overlay */}
         <div className="absolute left-[-1.5px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-violet-500 via-purple-500 to-fuchsia-500/10 pointer-events-none" />
 
@@ -99,7 +99,7 @@ export default function Experience() {
             className="relative group"
           >
             {/* Pulsing glow point on timeline */}
-            <div className="absolute left-[-39px] md:left-[-55px] top-6 w-3 h-3 md:w-4 md:h-4 rounded-full bg-primary border-2 border-background shadow-[0_0_8px_rgba(167,139,250,0.8)] group-hover:scale-125 transition-transform duration-300 z-10" />
+            <div className="absolute left-[-29px] md:left-[-55px] top-6 w-3 h-3 md:w-4 md:h-4 rounded-full bg-primary border-2 border-background shadow-[0_0_8px_rgba(167,139,250,0.8)] group-hover:scale-125 transition-transform duration-300 z-10" />
 
             {/* Timeline Card */}
             <div className="glassmorphism p-6 md:p-8 rounded-xl hover-glow-card transition-all duration-300 shadow-xl">

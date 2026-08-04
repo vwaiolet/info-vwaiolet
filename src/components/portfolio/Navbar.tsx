@@ -216,7 +216,7 @@ export default function Navbar(props: NavbarProps) {
             <a
               key={item.id}
               href={item.href}
-              className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-full transition-all duration-200 ${
+              className={`flex flex-col items-center justify-center py-1 px-2 sm:px-3 rounded-full transition-all duration-200 ${
                 isActive
                   ? "bg-primary text-primary-foreground font-bold shadow-md scale-105"
                   : "text-muted-foreground hover:text-foreground hover:bg-primary/10"
