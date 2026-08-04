@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react"
 import { Card, CardDescription, CardFooter, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Archive, Cpu, Lock, Network, Server, FileText, Code, Maximize2, ZoomIn, FolderKanban } from "lucide-react"
+import { Archive, Cpu, Lock, Network, Server, FileText, Code, Maximize2, ZoomIn, FolderKanban, Headphones } from "lucide-react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useLayoutEffect } from "react"
@@ -254,6 +254,7 @@ import asyncBackendMd from "@/content/async-backend.md?raw"
 import binanceArchiveMd from "@/content/binance-archive.md?raw"
 import projectNexusMd from "@/content/project-nexus.md?raw"
 import pmsMonorepoMd from "@/content/pms-monorepo.md?raw"
+import stelwaveMd from "@/content/stelwave.md?raw"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -310,10 +311,24 @@ const projectGroups = [
   },
   {
     title: "Personal Projects",
-    description: "개인적으로 설계하고 구현한 서버, 모니터링, 데이터 인프라 프로젝트입니다.",
+    description: "개인적으로 설계하고 구현한 오디오 엔진, 스트리밍 서버, 인프라 관제 데몬 프로젝트입니다.",
     footerLabel: "Personal Project",
     gridClassName: "md:grid-cols-2",
     projects: [
+      {
+        title: "StelWave (스텔웨이브)",
+        description: "WinUI 3(Windows App SDK)와 BASS 오디오 엔진을 결합하여 제작된 비트퍼펙트/저지연 Hi-Fi 오디오 플레이어입니다. SQLite 기반 초고속 대용량 라이브러리 가상화 스캔과 실시간 오디오 스펙 트래킹을 제공합니다.",
+        tags: ["WinUI 3 / C#", "BASS Engine", "WASAPI / ASIO", "SQLite Virtualization", "TagLibSharp", "Bit-Perfect Audio"],
+        visualLabel: "Hi-Fi Audio Player",
+        icon: Headphones,
+        metrics: [
+          { label: "출력 모드", value: "WASAPI / ASIO / Shared" },
+          { label: "오디오 엔진", value: "BASS & FLAC Native" },
+          { label: "데이터 엔진", value: "SQLite Virtualization" }
+        ],
+        markdownContent: stelwaveMd,
+        repoUrl: "https://github.com/vwaiolet/stel-wave",
+      },
       {
         title: "Binance 체결 데이터 아카이브 서버",
         description: "대용량 스트리밍 JSON 데이터를 PipeReader + Utf8JsonReader 순차 파싱으로 처리하고, ApiKeyHeader 검증 레이어를 거쳐 Native RowBinary 포맷으로 ClickHouse(ReplacingMergeTree 엔진)에 고속 적재하는 고성능 인제스천 서버입니다.",
