@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react"
 import { Card, CardDescription, CardFooter, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Archive, Cpu, Lock, Network, Server, FileText, Code, Maximize2, ZoomIn } from "lucide-react"
+import { Archive, Cpu, Lock, Network, Server, FileText, Code, Maximize2, ZoomIn, FolderKanban } from "lucide-react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useLayoutEffect } from "react"
@@ -253,6 +253,7 @@ import vehicleVssMd from "@/content/vehicle-vss.md?raw"
 import asyncBackendMd from "@/content/async-backend.md?raw"
 import binanceArchiveMd from "@/content/binance-archive.md?raw"
 import projectNexusMd from "@/content/project-nexus.md?raw"
+import pmsMonorepoMd from "@/content/pms-monorepo.md?raw"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -289,6 +290,20 @@ const projectGroups = [
           { label: "외부 연동 API", value: "Vertex / AWS / Stability" }
         ],
         markdownContent: asyncBackendMd,
+        repoUrl: "",
+      },
+      {
+        title: "통합 PMS 모노레포 및 인프라 오케스트레이션",
+        description: "(주)PS오닉스 외주 프로젝트로 수행되었으며, GitLab, OpenProject(커스텀 플러그인), OpenLDAP(LAM SSO 인증), Ollama AI 및 CI 로그 분석기/To-Do 동기화 마이크로서비스를 Docker 환경 기반으로 통합 구축하고 오케스트레이션한 엔터프라이즈 PMS 모노레포 플랫폼입니다.",
+        tags: ["Docker Compose", "OpenProject", "GitLab CE", "OpenLDAP", "Nginx Proxy", "Ollama AI", "Python / FastAPI"],
+        visualLabel: "Enterprise PMS Platform",
+        icon: FolderKanban,
+        metrics: [
+          { label: "프로젝트 구분", value: "PS오닉스 외주 구축" },
+          { label: "인증 & 라우팅", value: "OpenLDAP / Nginx" },
+          { label: "협업 & AI", value: "OpenProject / Ollama" }
+        ],
+        markdownContent: pmsMonorepoMd,
         repoUrl: "",
       }
     ]
