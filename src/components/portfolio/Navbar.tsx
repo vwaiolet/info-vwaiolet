@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
-import { useEffect, useState } from "react"
-import { Mail, Sun, Moon, Monitor, Home, Cpu, FolderGit2, Briefcase, GraduationCap } from "lucide-react"
+import { useEffect, useState, type MouseEvent } from "react"
+import { Mail, Sun, Moon, Monitor, Home, Cpu, FolderGit2, Briefcase, GraduationCap, BookOpen, ChevronLeft, ChevronRight, List, X } from "lucide-react"
 import { Theme, useTheme } from "@/lib/useTheme"
 
 const contactHref = "mailto:kkh990828@gmail.com?subject=Portfolio%20Contact"
@@ -42,9 +42,15 @@ export default function Navbar(props: NavbarProps) {
 
   const [scrolled, setScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState("home")
+  const [isTocOpen, setIsTocOpen] = useState(false)
+  const [readerPage, setReaderPage] = useState(0)
+  const [readerPageCount, setReaderPageCount] = useState(navItems.length)
+  const [readerPagesPerSpread, setReaderPagesPerSpread] = useState(1)
 
   useEffect(() => {
     const handleScroll = () => {
+      if (document.querySelector(".portfolio-reader")) return
+
       setScrolled(window.scrollY > 20)
 
       // Top of page check
@@ -77,11 +83,39 @@ export default function Navbar(props: NavbarProps) {
       }
     }
 
+    const reader = document.querySelector<HTMLElement>(".reader-book")
+    const handleReaderScroll = () => {
+      if (!reader) return
+
+      const pageWidth = reader.clientWidth
+      if (!pageWidth) return
+
+      const readerPages = Array.from(reader.querySelectorAll<HTMLElement>("[data-reader-section]"))
+      const pagesPerSpread = window.matchMedia("(min-width: 1024px)").matches ? 2 : 1
+      const currentSpread = Math.max(0, Math.round(reader.scrollLeft / pageWidth))
+      const currentPage = Math.min(Math.max(0, readerPages.length - 1), currentSpread * pagesPerSpread)
+      const activeReaderSection = readerPages[currentPage]
+
+      setReaderPage(currentPage)
+      setReaderPageCount(Math.max(1, readerPages.length))
+      setReaderPagesPerSpread(pagesPerSpread)
+      if (activeReaderSection?.dataset.readerSection) {
+        setActiveSection(activeReaderSection.dataset.readerSection)
+      }
+    }
+
     window.addEventListener("scroll", handleScroll, { passive: true })
+    window.addEventListener("resize", handleReaderScroll)
+    reader?.addEventListener("scroll", handleReaderScroll, { passive: true })
+    reader?.addEventListener("readerlayout", handleReaderScroll)
     handleScroll()
+    handleReaderScroll()
 
     return () => {
       window.removeEventListener("scroll", handleScroll)
+      window.removeEventListener("resize", handleReaderScroll)
+      reader?.removeEventListener("scroll", handleReaderScroll)
+      reader?.removeEventListener("readerlayout", handleReaderScroll)
     }
   }, [])
 
@@ -91,15 +125,50 @@ export default function Navbar(props: NavbarProps) {
     else setTheme("system")
   }
 
+  const navigateReader = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
+    const reader = document.querySelector<HTMLElement>(".reader-book")
+    const page = reader?.querySelector<HTMLElement>(`[data-reader-section="${id}"]`)
+    if (!reader || !page) return
+
+    event.preventDefault()
+    const desktopSpread = window.matchMedia("(min-width: 1024px)").matches
+      ? page.closest<HTMLElement>(".mobile-reader-spread")
+      : page
+    const targetPosition = reader.scrollLeft + (desktopSpread?.getBoundingClientRect().left ?? 0) - reader.getBoundingClientRect().left
+    const currentSpread = Math.round(reader.scrollLeft / reader.clientWidth)
+    const targetSpread = Math.round(targetPosition / reader.clientWidth)
+    if (Math.abs(targetSpread - currentSpread) > 2) {
+      const previousScrollBehavior = reader.style.scrollBehavior
+      reader.style.scrollBehavior = "auto"
+      reader.scrollLeft = targetPosition
+      window.requestAnimationFrame(() => {
+        reader.style.scrollBehavior = previousScrollBehavior
+      })
+    } else {
+      reader.scrollTo({ left: targetPosition, behavior: "smooth" })
+    }
+    window.history.replaceState(null, "", `#${id}`)
+  }
+
+  const turnReaderPage = (direction: -1 | 1) => {
+    const reader = document.querySelector<HTMLElement>(".reader-book")
+    if (!reader) return
+
+    const pageWidth = reader.clientWidth
+    const totalSpreads = Math.max(1, Math.round(reader.scrollWidth / pageWidth))
+    const currentSpread = Math.round(reader.scrollLeft / pageWidth)
+    const targetSpread = Math.max(0, Math.min(totalSpreads - 1, currentSpread + direction))
+    reader.scrollTo({ left: targetSpread * pageWidth, behavior: "smooth" })
+  }
+
   return (
     <>
       {/* Top Header Navigation */}
       <header
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-          scrolled
+        className={`hidden fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled
             ? "py-3 glassmorphism border-b border-border/40 shadow-lg"
             : "py-5 bg-transparent"
-        }`}
+          }`}
       >
         <div className="container mx-auto flex max-w-6xl items-center justify-between px-4 md:px-8">
           {/* Logo */}
@@ -115,11 +184,11 @@ export default function Navbar(props: NavbarProps) {
               <a
                 key={item.id}
                 href={item.href}
-                className={`transition-all duration-200 ${
-                  activeSection === item.id
+                onClick={(event) => navigateReader(event, item.id)}
+                className={`transition-all duration-200 ${activeSection === item.id
                     ? "text-primary font-bold"
                     : "text-muted-foreground hover:text-primary"
-                }`}
+                  }`}
               >
                 {item.label}
               </a>
@@ -132,11 +201,10 @@ export default function Navbar(props: NavbarProps) {
             <div className="flex items-center p-1 rounded-full border border-border/50 bg-background/50 backdrop-blur-sm">
               <button
                 onClick={() => setTheme("system")}
-                className={`p-1.5 rounded-full transition-all cursor-pointer ${
-                  theme === "system"
+                className={`p-1.5 rounded-full transition-all cursor-pointer ${theme === "system"
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
-                }`}
+                  }`}
                 title="System Theme (Auto)"
                 aria-label="System theme"
               >
@@ -144,11 +212,10 @@ export default function Navbar(props: NavbarProps) {
               </button>
               <button
                 onClick={() => setTheme("light")}
-                className={`p-1.5 rounded-full transition-all cursor-pointer ${
-                  theme === "light"
+                className={`p-1.5 rounded-full transition-all cursor-pointer ${theme === "light"
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
-                }`}
+                  }`}
                 title="Light Mode"
                 aria-label="Light mode"
               >
@@ -156,11 +223,10 @@ export default function Navbar(props: NavbarProps) {
               </button>
               <button
                 onClick={() => setTheme("dark")}
-                className={`p-1.5 rounded-full transition-all cursor-pointer ${
-                  theme === "dark"
+                className={`p-1.5 rounded-full transition-all cursor-pointer ${theme === "dark"
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
-                }`}
+                  }`}
                 title="Dark Mode"
                 aria-label="Dark mode"
               >
@@ -186,67 +252,84 @@ export default function Navbar(props: NavbarProps) {
             </Button>
           </div>
 
-          {/* Mobile Top Header Actions */}
-          <div className="flex items-center gap-3 lg:hidden">
-            <a
-              href="https://github.com/vwaiolet"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-primary transition-colors cursor-pointer p-1"
-              aria-label="GitHub Profile"
-            >
-              <GithubIcon className="w-5 h-5" />
-            </a>
-            <Button asChild variant="outline" size="sm" className="border-primary/20 hover:border-primary/50 text-[11px] font-semibold cursor-pointer glassmorphism py-1 px-3 h-8">
-              <a href={contactHref} className="flex items-center gap-1.5">
-                <Mail className="w-3 h-3 text-primary" />
-                Contact
-              </a>
-            </Button>
-          </div>
         </div>
       </header>
 
-      {/* Mobile Bottom Glass Floating Navigation Dock */}
-      <div className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-sm glassmorphism rounded-full p-1.5 border border-primary/25 shadow-2xl shadow-black/20 backdrop-blur-2xl flex items-center justify-between">
-        {navItems.map(item => {
-          const Icon = item.icon
-          const isActive = activeSection === item.id
-          return (
-            <a
-              key={item.id}
-              href={item.href}
-              className={`flex flex-col items-center justify-center py-1 px-2 sm:px-3 rounded-full transition-all duration-200 ${
-                isActive
-                  ? "bg-primary text-primary-foreground font-bold shadow-md scale-105"
-                  : "text-muted-foreground hover:text-foreground hover:bg-primary/10"
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span className="text-[10px] tracking-tight mt-0.5 font-medium">{item.label}</span>
-            </a>
-          )
-        })}
-
-        {/* Quick Theme Cycle Button on Bottom Bar */}
+      {/* Reader chrome */}
+      <header className="reader-mobile-header">
         <button
-          onClick={cycleTheme}
-          className="flex flex-col items-center justify-center py-1.5 px-2.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-all cursor-pointer border-l border-border/30 ml-0.5"
-          title="Change Theme"
-          aria-label="Cycle theme"
+          type="button"
+          onClick={() => setIsTocOpen((open) => !open)}
+          className="reader-icon-button"
+          aria-label="목차 열기"
+          aria-expanded={isTocOpen}
         >
-          {theme === "system" ? (
-            <Monitor className="w-4 h-4 text-primary" />
-          ) : theme === "light" ? (
-            <Sun className="w-4 h-4 text-amber-500" />
-          ) : (
-            <Moon className="w-4 h-4 text-violet-400" />
-          )}
-          <span className="text-[9px] tracking-tight mt-0.5 font-medium opacity-80">Theme</span>
+          {isTocOpen ? <X className="h-4 w-4" /> : <List className="h-4 w-4" />}
         </button>
+        <a href="/#home" onClick={(event) => navigateReader(event, "home")} className="reader-wordmark" aria-label="첫 페이지로 이동">
+          <span>VWAIOLET</span>
+        </a>
+        <button
+          type="button"
+          onClick={cycleTheme}
+          className="reader-icon-button"
+          title="테마 변경"
+          aria-label="테마 변경"
+        >
+          {theme === "system" ? <Monitor className="h-4 w-4" /> : theme === "light" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </button>
+        <span className="reader-progress" aria-hidden="true">
+          <span style={{ width: `${(Math.min(readerPage + readerPagesPerSpread, readerPageCount) / readerPageCount) * 100}%` }} />
+        </span>
+      </header>
+
+      <div className={`reader-toc ${isTocOpen ? "is-open" : ""}`} aria-hidden={!isTocOpen}>
+        <div className="reader-toc-heading">
+          <BookOpen className="h-4 w-4" />
+          <span>CONTENTS</span>
+        </div>
+        <nav aria-label="목차">
+          {navItems.map((item, index) => {
+            const Icon = item.icon
+            const isActive = activeSection === item.id
+            return (
+              <a
+                key={item.id}
+                href={item.href}
+                onClick={(event) => {
+                  setIsTocOpen(false)
+                  navigateReader(event, item.id)
+                }}
+                className={isActive ? "is-active" : ""}
+              >
+                <span className="reader-toc-index">0{index + 1}</span>
+                <Icon className="h-4 w-4" />
+                <span>{item.label}</span>
+              </a>
+            )
+          })}
+        </nav>
       </div>
+
+      <nav className="reader-pagination" aria-label="페이지 이동">
+        {readerPage > 0 ? (
+          <button type="button" onClick={() => turnReaderPage(-1)} aria-label="이전 페이지로 이동">
+            <ChevronLeft className="h-4 w-4" />
+            <span>PREV</span>
+          </button>
+        ) : (
+          <span className="reader-page-edge" aria-hidden="true"><ChevronLeft className="h-4 w-4" /><span>PREV</span></span>
+        )}
+        <span className="reader-page-count">{String(readerPage + 1).padStart(2, "0")}{readerPagesPerSpread === 2 && readerPage + 1 < readerPageCount && <><b>–</b>{String(readerPage + 2).padStart(2, "0")}</>} <i /> {String(readerPageCount).padStart(2, "0")}</span>
+        {readerPage + readerPagesPerSpread < readerPageCount ? (
+          <button type="button" onClick={() => turnReaderPage(1)} aria-label="다음 페이지로 이동">
+            <span>NEXT</span>
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        ) : (
+          <span className="reader-page-edge" aria-hidden="true"><span>NEXT</span><ChevronRight className="h-4 w-4" /></span>
+        )}
+      </nav>
     </>
   )
 }
-
-
