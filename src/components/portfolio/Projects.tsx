@@ -22,7 +22,7 @@ function Mermaid({ chart }: { chart: string }) {
     try {
       containerRef.current.innerHTML = chart
       containerRef.current.removeAttribute("data-processed")
-      
+
       const isDark = document.documentElement.classList.contains("dark")
       mermaid.initialize({
         startOnLoad: false,
@@ -209,7 +209,7 @@ function Mermaid({ chart }: { chart: string }) {
       {/* Hover maximize button */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <button 
+          <button
             onClick={handleOpenZoom}
             className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-lg border border-primary/20 bg-transparent/80 text-muted-foreground backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:text-primary hover:border-primary/45 transition-all duration-300 cursor-pointer shadow-lg"
             title="다이어그램 확대 보기"
@@ -227,9 +227,9 @@ function Mermaid({ chart }: { chart: string }) {
               마우스 스크롤이나 드래그를 이용해 다이어그램 구조를 상세히 확인할 수 있습니다.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="flex-1 overflow-auto flex items-start justify-center p-4 bg-muted/40 border border-border/40 rounded-xl">
-            <div 
+            <div
               className="zoom-mermaid select-none flex justify-center w-full min-w-[800px] md:min-w-[1200px] p-6"
               dangerouslySetInnerHTML={{ __html: zoomedSvg }}
             />
@@ -237,7 +237,7 @@ function Mermaid({ chart }: { chart: string }) {
         </DialogContent>
       </Dialog>
 
-      <div 
+      <div
         ref={containerRef}
         onClick={handleOpenZoom}
         className="mermaid flex justify-center p-4 my-6 glassmorphism border border-primary/15 rounded-xl overflow-x-auto w-full select-none shadow-inner cursor-pointer hover:border-primary/40 transition-all duration-300"
@@ -260,7 +260,7 @@ gsap.registerPlugin(ScrollTrigger)
 
 const projectGroups = [
   {
-    title: "Company Projects",
+    title: "회사 프로젝트",
     description: "실무 환경에서 가상화 오케스트레이션 및 서버 리소스 최적화를 설계하고 구현한 프로젝트입니다.",
     footerLabel: "Company Work (Private IP)",
     gridClassName: "md:grid-cols-2",
@@ -310,7 +310,7 @@ const projectGroups = [
     ]
   },
   {
-    title: "Personal Projects",
+    title: "개인 / 팀 프로젝트",
     description: "개인적으로 설계하고 구현한 오디오 엔진, 스트리밍 서버, 인프라 관제 데몬 프로젝트입니다.",
     footerLabel: "Personal Project",
     gridClassName: "md:grid-cols-2",
