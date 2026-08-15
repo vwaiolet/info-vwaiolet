@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { TerminalThemeId } from '@/lib/terminal/types'
 import { TerminalWindow } from './TerminalWindow'
-import { THEMES } from '@/lib/terminal/data'
 import { VLogoIcon } from './Icons'
 import {
   Wifi,
   Battery,
   Search,
   Sliders,
-  Palette,
 } from 'lucide-react'
 
 export const MacDesktop: React.FC = () => {
@@ -62,12 +60,6 @@ export const MacDesktop: React.FC = () => {
 
         {/* Right Status Tray */}
         <div className="flex items-center gap-3 text-slate-300 font-mono text-[11px]">
-          {/* Active Theme Badge */}
-          <div className="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px]">
-            <Palette className="w-3 h-3 text-purple-400" />
-            <span className="text-slate-300">{THEMES[themeId]?.name}</span>
-          </div>
-
           {/* Wi-Fi & Battery */}
           <div className="flex items-center gap-2">
             <span title="Connected: 10Gbps Fiber">
